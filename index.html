@@ -169,64 +169,100 @@
 </footer>
 
 <script>
-    var SOURCE_URL = 'https://livetv.aflam4you.net/index.php';
+    function getTodayDate() {
+        var d = new Date();
+        var mm = String(d.getMonth() + 1).padStart(2, '0');
+        var dd = String(d.getDate()).padStart(2, '0');
+        return d.getFullYear() + '-' + mm + '-' + dd;
+    }
+
+    function formatTime(dateStr, timeStr) {
+        if (!timeStr) return '';
+        try {
+            // API returns UTC time, convert to local
+            var dt = new Date(dateStr + 'T' + timeStr + 'Z');
+            return dt.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', hour12: true });
+        } catch(e) {
+            return timeStr.slice(0, 5);
+        }
+    }
+
+    function getStatusBadge(status) {
+        if (!status) return '<div class="match-channel">مجدول</div>';
+        var s = status.toLowerCase();
+        if (s === 'match finished' || s === 'ft' || s.includes('finish')) {
+            return '<div class="match-channel" style="background:rgba(255,80,80,0.15); color:#ff6060;">انتهت</div>';
+        } else if (s.includes('progress') || s === 'live' || s === '1h' || s === '2h') {
+            return '<div class="match-channel" style="background:rgba(0,236,100,0.15); color:#00ec70; animation: pulse 1.2s infinite;">🔴 مباشر</div>';
+        }
+        return '<div class="match-channel">مجدول</div>';
+    }
 
     function loadMatches() {
         var container = document.getElementById('matchesList');
         container.innerHTML = '<div class="loading"><div class="spinner"></div><p>جاري تحميل المباريات...</p></div>';
 
-        // Cleanest JSONP fetch approach
-        var callbackName = 'sc_' + Math.floor(Math.random() * 1000000);
-        window[callbackName] = function(data) {
-            if (data && data.contents) parse(data.contents);
-            delete window[callbackName];
-            var s = document.getElementById('scr'); if(s) s.remove();
-        };
+        var today = getTodayDate();
+        var apiUrl = 'https://www.thesportsdb.com/api/v1/json/123/eventsday.php?d=' + today + '&s=Soccer';
 
-        var script = document.createElement('script');
-        script.id = 'scr';
-        script.src = 'https://api.allorigins.win/get?url=' + encodeURIComponent(SOURCE_URL) + '&callback=' + callbackName;
-        document.body.appendChild(script);
-
-        setTimeout(function() {
-            if (container.innerHTML.includes('spinner')) {
-                container.innerHTML = '<div class="loading"><p>تعذر جلب البيانات تلقائياً</p><a href="' + SOURCE_URL + '" target="_blank" style="color:var(--secondary); text-decoration:none;">اضغط هنا لمشاهدة الجدول من المصدر الأصلي</a></div>';
-            }
-        }, 8000);
+        fetch(apiUrl)
+            .then(function(res) {
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                return res.json();
+            })
+            .then(function(data) {
+                renderMatches(data.events || []);
+            })
+            .catch(function(err) {
+                console.error('Error fetching matches:', err);
+                container.innerHTML = '<div class="loading"><i class="fas fa-exclamation-circle" style="font-size:2.5rem; color:var(--secondary); margin-bottom:15px; display:block;"></i><p>تعذر جلب المباريات</p><button onclick="loadMatches()" style="margin-top:15px; padding:10px 25px; background:var(--secondary); color:#fff; border:none; border-radius:25px; cursor:pointer; font-family:Cairo,sans-serif; font-size:1rem;">إعادة المحاولة</button></div>';
+            });
     }
 
-    function parse(html) {
-        var parser = new DOMParser();
-        var doc = parser.parseFromString(html, 'text/html');
-        var links = doc.querySelectorAll('a[href*="funding-tv"]');
+    function renderMatches(events) {
         var container = document.getElementById('matchesList');
-        var htmlStr = '';
-        var seen = {};
 
-        links.forEach(function(link) {
-            var href = link.getAttribute('href');
-            var text = link.innerText.replace(/\s+/g, ' ').trim();
-            var timeMatch = text.match(/(\d{1,2}:\d{2})/);
-            
-            if (timeMatch && !seen[href]) {
-                seen[href] = true;
-                var clean = text.replace(timeMatch[0], '').replace('بتوقيت غرينتش', '').trim();
-                var teams = clean.split('\n').map(function(s){return s.trim();}).filter(function(s){return s.length > 1;});
-                
-                if (teams.length >= 2) {
-                    htmlStr += '<a class="match-card" href="' + SOURCE_URL + '" target="_blank">' +
-                        '<div class="match-teams">' +
-                            '<div class="team"><span>' + teams[0] + '</span></div>' +
-                            '<div class="vs-badge">VS<div style="font-size:0.6rem; opacity:0.8;">' + timeMatch[0] + ' GMT</div></div>' +
-                            '<div class="team"><span>' + teams[teams.length-1] + '</span></div>' +
-                        '</div>' +
-                        '<div class="match-channel">مباشر</div>' +
-                    '</a>';
-                }
-            }
+        if (!events || events.length === 0) {
+            container.innerHTML = '<div class="loading"><i class="fas fa-moon" style="font-size:3rem; color:#555; display:block; margin-bottom:15px;"></i><p>لا توجد مباريات كروية مجدولة اليوم</p></div>';
+            return;
+        }
+
+        // Sort by time
+        events.sort(function(a, b) {
+            return (a.strTime || '').localeCompare(b.strTime || '');
         });
 
-        container.innerHTML = htmlStr || '<div class="loading">لا توجد مباريات معروضة حالياً</div>';
+        var html = '';
+        events.forEach(function(ev) {
+            var home = ev.strHomeTeam || '';
+            var away = ev.strAwayTeam || '';
+            var league = ev.strLeague || '';
+            var time = formatTime(ev.strDate || getTodayDate(), ev.strTime);
+            var scoreHome = ev.intHomeScore;
+            var scoreAway = ev.intAwayScore;
+            var hasScore = (scoreHome !== null && scoreHome !== undefined && scoreHome !== '');
+            var badge = getStatusBadge(ev.strStatus);
+            var homeBadge = ev.strHomeTeamBadge ? '<img src="' + ev.strHomeTeamBadge + '/tiny" onerror="this.style.display=\'none\'" style="width:28px;height:28px;object-fit:contain;margin-left:8px;border-radius:4px;" loading="lazy">' : '';
+            var awayBadge = ev.strAwayTeamBadge ? '<img src="' + ev.strAwayTeamBadge + '/tiny" onerror="this.style.display=\'none\'" style="width:28px;height:28px;object-fit:contain;margin-right:8px;border-radius:4px;" loading="lazy">' : '';
+
+            var vsContent = hasScore
+                ? '<div class="vs-badge">' + scoreHome + ' - ' + scoreAway + '<div style="font-size:0.6rem; opacity:0.8;">' + time + '</div></div>'
+                : '<div class="vs-badge">VS<div style="font-size:0.6rem; opacity:0.8;">' + time + '</div></div>';
+
+            html += '<div class="match-card">' +
+                '<div style="width:100%;">' +
+                    '<div style="font-size:0.75rem; color:var(--secondary); margin-bottom:8px; opacity:0.85;"><i class="fas fa-trophy" style="margin-left:5px;"></i>' + league + '</div>' +
+                    '<div class="match-teams">' +
+                        '<div class="team">' + homeBadge + '<span>' + home + '</span></div>' +
+                        vsContent +
+                        '<div class="team"><span>' + away + '</span>' + awayBadge + '</div>' +
+                    '</div>' +
+                '</div>' +
+                badge +
+            '</div>';
+        });
+
+        container.innerHTML = html;
     }
 
     loadMatches();
