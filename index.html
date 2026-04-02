@@ -244,6 +244,8 @@
             var badge = getStatusBadge(ev.strStatus);
             var homeBadge = ev.strHomeTeamBadge ? '<img src="' + ev.strHomeTeamBadge + '/tiny" onerror="this.style.display=\'none\'" style="width:28px;height:28px;object-fit:contain;margin-left:8px;border-radius:4px;" loading="lazy">' : '';
             var awayBadge = ev.strAwayTeamBadge ? '<img src="' + ev.strAwayTeamBadge + '/tiny" onerror="this.style.display=\'none\'" style="width:28px;height:28px;object-fit:contain;margin-right:8px;border-radius:4px;" loading="lazy">' : '';
+            var tvStation = ev.strTVStation ? ev.strTVStation.trim() : '';
+            var channelDisplay = tvStation ? '<span style="margin-right:15px; color:#aaa;"><i class="fas fa-tv" style="margin-left:4px;"></i>' + tvStation + '</span>' : '';
 
             var vsContent = hasScore
                 ? '<div class="vs-badge">' + scoreHome + ' - ' + scoreAway + '<div style="font-size:0.6rem; opacity:0.8;">' + time + '</div></div>'
@@ -251,7 +253,10 @@
 
             html += '<div class="match-card">' +
                 '<div style="width:100%;">' +
-                    '<div style="font-size:0.75rem; color:var(--secondary); margin-bottom:8px; opacity:0.85;"><i class="fas fa-trophy" style="margin-left:5px;"></i>' + league + '</div>' +
+                    '<div style="font-size:0.75rem; color:var(--secondary); margin-bottom:8px; opacity:0.85; display:flex; flex-wrap:wrap;">' + 
+                        '<span><i class="fas fa-trophy" style="margin-left:5px;"></i>' + league + '</span>' + 
+                        channelDisplay +
+                    '</div>' +
                     '<div class="match-teams">' +
                         '<div class="team">' + homeBadge + '<span>' + home + '</span></div>' +
                         vsContent +
@@ -267,6 +272,5 @@
 
     loadMatches();
 </script>
-
 </body>
 </html>
