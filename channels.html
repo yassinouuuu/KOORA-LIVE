@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ستريم لايف | قائمة القنوات</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3f5efb;
+            --secondary: #fc466b;
+            --accent: #00ecbc;
+            --bg: #0b091f;
+            --card-bg: rgba(255,255,255,0.04);
+            --text: #ffffff;
+            --dim: #a0a0a0;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        body { background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+
+        /* Navbar */
+        nav {
+            padding: 15px 5%;
+            background: rgba(15, 12, 41, 0.8);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top: 0; z-index: 999;
+            backdrop-filter: blur(15px);
+        }
+        .logo { font-size: 1.5rem; font-weight: 800; color: #fff; text-decoration: none; }
+        .logo span { color: var(--secondary); }
+        .nav-links a { color: #fff; text-decoration: none; margin-right: 20px; font-weight: 600; font-size: 0.95rem; }
+
+        /* Main Player Container */
+        .player-area {
+            display: none;
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 0 20px;
+            animation: slideDown 0.4s ease;
+        }
+        .player-card {
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid var(--secondary);
+            box-shadow: 0 0 50px rgba(252, 70, 107, 0.2);
+        }
+        .player-head {
+            background: #1a1a1a;
+            padding: 15px 25px;
+            display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 1px solid #333;
+        }
+        .player-head h2 { font-size: 1.1rem; color: #fff; }
+        .close-btn {
+            background: #ff4d4d; border: none; color: #fff;
+            width: 30px; height: 30px; border-radius: 6px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .video-box {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            background: #000;
+        }
+        .video-box iframe {
+            position: absolute; top: 0; left: 0;
+            width: 100% !important; height: 100% !important;
+            border: 0;
+        }
+
+        .external-btn-wrap {
+            padding: 15px;
+            background: #111;
+            text-align: center;
+            border-top: 1px solid #222;
+        }
+        .btn-external {
+            display: inline-block;
+            padding: 10px 25px;
+            background: var(--accent);
+            color: #000;
+            text-decoration: none;
+            font-weight: 700;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            transition: 0.3s;
+        }
+        .btn-external:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 236, 188, 0.4); }
+
+        /* Grid */
+        .channels-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 25px;
+        }
+        .ch-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 35px 20px;
+            text-align: center;
+            transition: 0.3s;
+            cursor: pointer;
+            position: relative;
+            z-index: 10;
+        }
+        .ch-card:hover {
+            background: rgba(255,255,255,0.08);
+            transform: translateY(-8px);
+            border-color: var(--secondary);
+        }
+        .ch-card i { font-size: 3rem; color: var(--secondary); margin-bottom: 20px; }
+        .ch-card h3 { font-size: 1.4rem; margin-bottom: 20px; color: #fff; }
+        
+        .watch-btn {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: #fff;
+            border: none;
+            padding: 12px 0;
+            width: 100%;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .watch-btn:hover { box-shadow: 0 5px 15px rgba(252, 70, 107, 0.4); }
+
+        .empty-msg {
+            grid-column: 1/-1;
+            text-align: center;
+            padding: 100px 20px;
+            color: var(--dim);
+        }
+
+        @keyframes slideDown { from { opacity:0; transform: translateY(-30px); } to { opacity:1; transform: translateY(0); } }
+
+        @media (max-width: 600px) {
+            .channels-grid { grid-template-columns: 1fr; }
+            nav { padding: 15px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="index.html" class="logo">ستريم <span>لايف</span></a>
+    <div class="nav-links">
+        <a href="index.html">الرئيسية</a>
+        <a href="admin.html">الأدمين</a>
+    </div>
+</nav>
+
+<div class="player-area" id="playerArea">
+    <div class="player-card">
+        <div class="player-head">
+            <h2 id="pTitle">اسم القناة</h2>
+            <button class="close-btn" onclick="closePlayer()">✕</button>
+        </div>
+        <div class="video-box" id="pBox"></div>
+        <div class="external-btn-wrap" id="extWrap" style="display:none;">
+            <a href="#" id="extLink" target="_blank" class="btn-external">
+                <i class="fas fa-external-link-alt"></i> فتح القناة في نافذة جديدة
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="channels-grid" id="mainGrid"></div>
+
+<script>
+    var mainGrid   = document.getElementById('mainGrid');
+    var playerArea = document.getElementById('playerArea');
+    var pBox       = document.getElementById('pBox');
+    var pTitle     = document.getElementById('pTitle');
+    var extWrap    = document.getElementById('extWrap');
+    var extLink    = document.getElementById('extLink');
+
+    function getChannels() {
+        try {
+            var data = localStorage.getItem('channels');
+            if (data) return JSON.parse(data);
+        } catch(e) { console.error(e); }
+        // Default if empty
+        return [{name: "قناة تجريبية", iframe: "https://www.youtube.com/embed/jfKfPfyJRdk"}];
+    }
+
+    function render() {
+        var list = getChannels();
+        mainGrid.innerHTML = '';
+
+        if (list.length === 0) {
+            mainGrid.innerHTML = '<div class="empty-msg"><h2>لا توجد قنوات حالياً</h2><p>قم بإضافتها من لوحة التحكم</p></div>';
+            return;
+        }
+
+        list.forEach(function(ch, idx) {
+            var el = document.createElement('div');
+            el.className = 'ch-card';
+            el.innerHTML = '<i class="fas fa-tv"></i>' +
+                          '<h3>' + ch.name + '</h3>' +
+                          '<button class="watch-btn" data-idx="'+idx+'">شاهد الآن</button>';
+            
+            // Critical: Use event listener on the card or button
+            el.querySelector('.watch-btn').onclick = function(e) {
+                e.stopPropagation();
+                openStream(ch);
+            };
+            el.onclick = function() {
+                openStream(ch);
+            };
+
+            mainGrid.appendChild(el);
+        });
+    }
+
+    function openStream(ch) {
+        var code = ch.iframe.trim();
+        var streamUrl = "";
+
+        // Extract URL or wrap if raw link
+        if (code.indexOf('<iframe') === -1 && code.indexOf('http') === 0) {
+            streamUrl = code;
+            code = '<iframe src="'+streamUrl+'" allowfullscreen allow="autoplay; fullscreen"></iframe>';
+        } else {
+            var match = code.match(/src=["']([^"']+)["']/i);
+            if (match) streamUrl = match[1];
+            // Ensure 100% width/height
+            code = code.replace(/width=["'][^"']+["']/i, 'width="100%"');
+            code = code.replace(/height=["'][^"']+["']/i, 'height="100%"');
+        }
+
+        pTitle.textContent = ch.name;
+        pBox.innerHTML = code;
+        
+        if (streamUrl) {
+            extLink.href = streamUrl;
+            extWrap.style.display = 'block';
+        } else {
+            extWrap.style.display = 'none';
+        }
+
+        playerArea.style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function closePlayer() {
+        playerArea.style.display = 'none';
+        pBox.innerHTML = '';
+    }
+
+    render();
+</script>
+
+</body>
+</html>
