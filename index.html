@@ -158,9 +158,23 @@
     <div class="nav-links">
         <a href="/">الرئيسية</a>
         <a href="/channels">القنوات</a>
-        <a href="/admin">الأدمين</a>
+        <a id="adminLink" href="/admin" style="display: none;">الأدمين</a>
     </div>
 </nav>
+
+<script>
+    // Show admin button only if logged in
+    if (localStorage.getItem('adminAuth') === 'true') {
+        document.getElementById('adminLink').style.display = 'inline-block';
+    }
+
+    // Secret shortcut: Press 'Shift + L' to go to admin page
+    window.addEventListener('keydown', (e) => {
+        if (e.shiftKey && e.key.toLowerCase() === 'l') {
+            window.location.href = '/admin';
+        }
+    });
+</script>
 
 <div class="section-title">
     <h2><i class="fas fa-futbol"></i> مباريات اليوم</h2>
