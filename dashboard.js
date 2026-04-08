@@ -10,25 +10,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const previewWrapper = document.getElementById('previewWrapper');
 
     function loadChannels() {
-        const storedChannels = JSON.parse(localStorage.getItem('channels')) || [];
-        adminChannelsList.innerHTML = '';
-        storedChannels.forEach((channel, index) => {
-            const item = document.createElement('div');
-            item.className = 'channel-list-item';
-            
-            // Encode to base64 to avoid quote issues in the inline onclick
-            const encodedIframe = btoa(unescape(encodeURIComponent(channel.iframe)));
-
-            item.innerHTML = `
-                <div style="flex: 1;">
-                    <div style="font-weight:700;">${channel.name}</div>
-                </div>
-                <div style="display:flex; gap:10px;">
-                    <button class="btn-test" style="width:auto; padding:5px 15px; margin:0;" onclick="copyCode('${encodedIframe}')"><i class="fas fa-copy"></i> نسخ الكود</button>
-                    <button class="btn-delete" onclick="deleteChannel(${index})"><i class="fas fa-trash"></i> حذف</button>
-                </div>
-            `;
-            adminChannelsList.appendChild(item);
+        window.DB.get('channels', function(storedChannels) {
+            adminChannelsList.innerHTML = '';
+            storedChannels.forEach((channel, index) => {
+                const item = document.createElement('div');
+                item.className = 'channel-list-item';
+                const encodedIframe = btoa(unescape(encodeURIComponent(channel.iframe)));
+                item.innerHTML = `
+                    <div style="flex: 1;">
+                        <div style="font-weight:700;">${channel.name}</div>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn-test" style="width:auto; padding:5px 15px; margin:0;" onclick="copyCode('${encodedIframe}')"><i class="fas fa-copy"></i> نسخ الكود</button>
+                        <button class="btn-delete" onclick="deleteChannel(${index})"><i class="fas fa-trash"></i> حذف</button>
+                    </div>
+                `;
+                adminChannelsList.appendChild(item);
+            });
         });
     }
 
@@ -65,29 +63,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     addChannelForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const storedChannels = JSON.parse(localStorage.getItem('channels')) || [];
-        const newChannel = {
-            id: Date.now(),
-            name: nameInput.value,
-            iframe: iframeInput.value
-        };
-        storedChannels.push(newChannel);
-        localStorage.setItem('channels', JSON.stringify(storedChannels));
-        
-        nameInput.value = '';
-        iframeInput.value = '';
-        previewBox.style.display = 'none';
-        previewWrapper.innerHTML = '';
-        loadChannels();
-        alert('تمت إضافة القناة بنجاح!');
+        window.DB.get('channels', function(storedChannels) {
+            const newChannel = {
+                id: Date.now(),
+                name: nameInput.value,
+                iframe: iframeInput.value
+            };
+            storedChannels.push(newChannel);
+            window.DB.save('channels', storedChannels);
+            nameInput.value = '';
+            iframeInput.value = '';
+            previewBox.style.display = 'none';
+            previewWrapper.innerHTML = '';
+            loadChannels();
+            alert('تمت إضافة القناة بنجاح!');
+        });
     });
 
     window.deleteChannel = (index) => {
         if (confirm('هل أنت متأكد من حذف هذه القناة؟')) {
-            const storedChannels = JSON.parse(localStorage.getItem('channels')) || [];
-            storedChannels.splice(index, 1);
-            localStorage.setItem('channels', JSON.stringify(storedChannels));
-            loadChannels();
+            window.DB.get('channels', function(storedChannels) {
+                storedChannels.splice(index, 1);
+                window.DB.save('channels', storedChannels);
+                loadChannels();
+            });
         }
     };
 
@@ -96,22 +95,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const adminMatchesList = document.getElementById('adminMatchesList');
 
     function loadMatchesAdmin() {
-        const storedMatches = JSON.parse(localStorage.getItem('customMatches')) || [];
-        adminMatchesList.innerHTML = '';
-        storedMatches.forEach((match, index) => {
-            const item = document.createElement('div');
-            item.className = 'channel-list-item';
-            item.innerHTML = `
-                <div style="display:flex;align-items:center;gap:10px;flex:1;">
-                    <img src="${match.homeBadge}" style="width:28px;height:28px;object-fit:contain;border-radius:4px;" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(match.home)}&background=3f5efb&color=fff'">
-                    <span>${match.title} (${match.league})</span>
-                </div>
-                <div style="display:flex; gap:10px;">
-                    <button class="btn-primary" style="padding:5px 15px; margin:0;" onclick="editMatch(${index})"><i class="fas fa-edit"></i> تعديل</button>
-                    <button class="btn-delete" onclick="deleteMatch(${index})"><i class="fas fa-trash"></i> حذف</button>
-                </div>
-            `;
-            adminMatchesList.appendChild(item);
+        window.DB.get('customMatches', function(storedMatches) {
+            adminMatchesList.innerHTML = '';
+            storedMatches.forEach((match, index) => {
+                const item = document.createElement('div');
+                item.className = 'channel-list-item';
+                item.innerHTML = `
+                    <div style="display:flex;align-items:center;gap:10px;flex:1;">
+                        <img src="${match.homeBadge}" style="width:28px;height:28px;object-fit:contain;border-radius:4px;" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(match.home)}&background=3f5efb&color=fff'">
+                        <span>${match.title} (${match.league})</span>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn-primary" style="padding:5px 15px; margin:0;" onclick="editMatch(${index})"><i class="fas fa-edit"></i> تعديل</button>
+                        <button class="btn-delete" onclick="deleteMatch(${index})"><i class="fas fa-trash"></i> حذف</button>
+                    </div>
+                `;
+                adminMatchesList.appendChild(item);
+            });
         });
     }
 
@@ -119,28 +119,24 @@ document.addEventListener('DOMContentLoaded', () => {
     window.currentEditMatchIndex = -1;
 
     window.editMatch = (index) => {
-        const storedMatches = JSON.parse(localStorage.getItem('customMatches')) || [];
-        const m = storedMatches[index];
-        if(!m) return;
-        
-        document.getElementById('matchHome').value = m.home || '';
-        document.getElementById('matchHomeBadge').value = (m.homeBadge && m.homeBadge.includes('ui-avatars')) ? '' : (m.homeBadge || '');
-        document.getElementById('matchAway').value = m.away || '';
-        document.getElementById('matchAwayBadge').value = (m.awayBadge && m.awayBadge.includes('ui-avatars')) ? '' : (m.awayBadge || '');
-        document.getElementById('matchLeague').value = m.league || '';
-        document.getElementById('matchTime').value = m.time || '';
-        document.getElementById('matchIframe').value = m.iframe || '';
-        
-        previewHomeLogo.src = m.homeBadge || '';
-        previewAwayLogo.src = m.awayBadge || '';
-        
-        window.currentEditMatchIndex = index;
-        const submitBtn = addMatchForm.querySelector('button[type="submit"]');
-        submitBtn.innerHTML = '<i class="fas fa-save"></i> حفظ التعديلات';
-        submitBtn.style.background = 'linear-gradient(45deg, #00ecbc, #00c69d)';
-        
-        // Scroll to form
-        document.getElementById('addMatchForm').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        window.DB.get('customMatches', function(storedMatches) {
+            const m = storedMatches[index];
+            if(!m) return;
+            document.getElementById('matchHome').value = m.home || '';
+            document.getElementById('matchHomeBadge').value = (m.homeBadge && m.homeBadge.includes('ui-avatars')) ? '' : (m.homeBadge || '');
+            document.getElementById('matchAway').value = m.away || '';
+            document.getElementById('matchAwayBadge').value = (m.awayBadge && m.awayBadge.includes('ui-avatars')) ? '' : (m.awayBadge || '');
+            document.getElementById('matchLeague').value = m.league || '';
+            document.getElementById('matchTime').value = m.time || '';
+            document.getElementById('matchIframe').value = m.iframe || '';
+            previewHomeLogo.src = m.homeBadge || '';
+            previewAwayLogo.src = m.awayBadge || '';
+            window.currentEditMatchIndex = index;
+            const submitBtn = addMatchForm.querySelector('button[type="submit"]');
+            submitBtn.innerHTML = '<i class="fas fa-save"></i> حفظ التعديلات';
+            submitBtn.style.background = 'linear-gradient(45deg, #00ecbc, #00c69d)';
+            document.getElementById('addMatchForm').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
     };
 
     // ---- Manual Logo Preview ----
@@ -157,15 +153,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
     addMatchForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const storedMatches = JSON.parse(localStorage.getItem('customMatches')) || [];
-        
-        const homeName     = document.getElementById('matchHome').value.trim();
-        const homeBadge    = document.getElementById('matchHomeBadge').value.trim();
-        const awayName     = document.getElementById('matchAway').value.trim();
-        const awayBadge    = document.getElementById('matchAwayBadge').value.trim();
-        const leagueName   = document.getElementById('matchLeague').value.trim();
+        window.DB.get('customMatches', function(storedMatches) {
+            const homeName   = document.getElementById('matchHome').value.trim();
+            const homeBadge  = document.getElementById('matchHomeBadge').value.trim();
+            const awayName   = document.getElementById('matchAway').value.trim();
+            const awayBadge  = document.getElementById('matchAwayBadge').value.trim();
+            const leagueName = document.getElementById('matchLeague').value.trim();
+            const title = `بث مباشر مباراة ${homeName} ضد ${awayName} - ${leagueName}`;
 
-        const title = `بث مباشر مباراة ${homeName} ضد ${awayName} - ${leagueName}`;
+            const isEdit = typeof window.currentEditMatchIndex === 'number' && window.currentEditMatchIndex > -1;
+            const currentMatchId = isEdit ? storedMatches[window.currentEditMatchIndex].id : Date.now();
+
+            const newMatch = {
+                id: currentMatchId,
+                title,
+                home: homeName,
+                homeBadge: homeBadge || `https://ui-avatars.com/api/?name=${encodeURIComponent(homeName)}&background=3f5efb&color=fff`,
+                away: awayName,
+                awayBadge: awayBadge || `https://ui-avatars.com/api/?name=${encodeURIComponent(awayName)}&background=fc466b&color=fff`,
+                time: document.getElementById('matchTime').value,
+                league: leagueName,
+                iframe: document.getElementById('matchIframe').value
+            };
+
+            if (isEdit) {
+                storedMatches[window.currentEditMatchIndex] = newMatch;
+                window.currentEditMatchIndex = -1;
+                const submitBtn = addMatchForm.querySelector('button[type="submit"]');
+                submitBtn.innerHTML = '<i class="fas fa-plus"></i> إضافة المباراة';
+                submitBtn.style.background = '';
+                alert('تم تعديل المباراة بنجاح!');
+            } else {
+                storedMatches.push(newMatch);
+                alert('تمت إضافة المباراة بنجاح!');
+            }
+
+            window.DB.save('customMatches', storedMatches);
+            addMatchForm.reset();
+            previewHomeLogo.src = '';
+            previewAwayLogo.src = '';
+            loadMatchesAdmin();
+        });
+    });
         
         // AI-Powered Detailed Description Generator (SEO Optimized - ~1000 words)
         const generateDetailedDescription = (h, a, l) => {
@@ -247,16 +276,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.deleteMatch = (index) => {
         if (confirm('هل أنت متأكد من حذف هذه المباراة؟')) {
-            const storedMatches = JSON.parse(localStorage.getItem('customMatches')) || [];
-            storedMatches.splice(index, 1);
-            localStorage.setItem('customMatches', JSON.stringify(storedMatches));
-            loadMatchesAdmin();
+            window.DB.get('customMatches', function(storedMatches) {
+                storedMatches.splice(index, 1);
+                window.DB.save('customMatches', storedMatches);
+                loadMatchesAdmin();
+            });
         }
     };
 
     window.clearAllMatches = () => {
         if (confirm('هل أنت متأكد من حذف جميع المباريات؟')) {
-            localStorage.removeItem('customMatches');
+            window.DB.remove('customMatches');
             loadMatchesAdmin();
         }
     };

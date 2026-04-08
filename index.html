@@ -8,6 +8,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
     <style>
         :root {
             --primary: #3f5efb;
@@ -341,44 +345,45 @@
 
     function loadMatches() {
         var container = document.getElementById('matchesList');
-        var customMatches = JSON.parse(localStorage.getItem('customMatches')) || [];
+        container.innerHTML = '<div class="loading"><div class="spinner"></div><p>جاري تحميل المباريات...</p></div>';
 
-        if (customMatches.length === 0) {
-            container.innerHTML = '<div class="loading"><i class="fas fa-moon" style="font-size:3rem; color:#555; display:block; margin-bottom:15px;"></i><p>لا توجد مباريات مضافة حالياً</p></div>';
-            return;
-        }
+        window.DB.listen('customMatches', function(customMatches) {
+            if (!customMatches || customMatches.length === 0) {
+                container.innerHTML = '<div class="loading"><i class="fas fa-moon" style="font-size:3rem; color:#555; display:block; margin-bottom:15px;"></i><p>لا توجد مباريات مضافة حالياً</p></div>';
+                return;
+            }
 
-        var mappedMatches = customMatches.map(function(m) {
-            return {
-                idEvent: m.id,
-                strTitle: m.title,
-                strHomeTeam: m.home,
-                strAwayTeam: m.away,
-                strHomeTeamBadge: m.homeBadge,
-                strAwayTeamBadge: m.awayBadge,
-                strTime: m.time,
-                strLeague: m.league,
-                leagueBadge: m.leagueBadge,
-                customLink: 'match.html?id=' + m.id,
-                isCustom: true,
-                liveStatus: m.liveStatus,
-                liveHomeScore: m.liveHomeScore,
-                liveAwayScore: m.liveAwayScore,
-                liveMinute: m.liveMinute
-            };
+            var mappedMatches = customMatches.map(function(m) {
+                return {
+                    idEvent: m.id,
+                    strTitle: m.title,
+                    strHomeTeam: m.home,
+                    strAwayTeam: m.away,
+                    strHomeTeamBadge: m.homeBadge,
+                    strAwayTeamBadge: m.awayBadge,
+                    strTime: m.time,
+                    strLeague: m.league,
+                    leagueBadge: m.leagueBadge,
+                    customLink: 'match.html?id=' + m.id,
+                    isCustom: true,
+                    liveStatus: m.liveStatus,
+                    liveHomeScore: m.liveHomeScore,
+                    liveAwayScore: m.liveAwayScore,
+                    liveMinute: m.liveMinute
+                };
+            });
+
+            mappedMatches.sort(function(a, b) {
+                var aLive = ['in_play', 'live', 'ht', '1h', '2h'].indexOf((a.liveStatus||'').toLowerCase()) > -1;
+                var bLive = ['in_play', 'live', 'ht', '1h', '2h'].indexOf((b.liveStatus||'').toLowerCase()) > -1;
+                if (aLive && !bLive) return -1;
+                if (!aLive && bLive) return 1;
+                return (a.strTime || '').localeCompare(b.strTime || '');
+            });
+
+            renderMatches(mappedMatches);
+            startLiveUpdates();
         });
-
-        // Sort: Live first, then by time
-        mappedMatches.sort(function(a, b) {
-            var aLive = ['in_play', 'live', 'ht', '1h', '2h'].indexOf((a.liveStatus||'').toLowerCase()) > -1;
-            var bLive = ['in_play', 'live', 'ht', '1h', '2h'].indexOf((b.liveStatus||'').toLowerCase()) > -1;
-            if (aLive && !bLive) return -1;
-            if (!aLive && bLive) return 1;
-            return (a.strTime || '').localeCompare(b.strTime || '');
-        });
-
-        renderMatches(mappedMatches);
-        startLiveUpdates(); // Start auto-update after rendering
     }
 
     function renderMatches(events) {

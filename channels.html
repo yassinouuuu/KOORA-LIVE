@@ -7,6 +7,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
     <style>
         :root {
             --primary: #3f5efb;
@@ -184,41 +188,33 @@
     var extWrap    = document.getElementById('extWrap');
     var extLink    = document.getElementById('extLink');
 
-    function getChannels() {
-        try {
-            var data = localStorage.getItem('channels');
-            if (data) return JSON.parse(data);
-        } catch(e) { console.error(e); }
-        // Default if empty
-        return [{name: "قناة تجريبية", iframe: "https://www.youtube.com/embed/jfKfPfyJRdk"}];
-    }
 
     function render() {
-        var list = getChannels();
-        mainGrid.innerHTML = '';
+        mainGrid.innerHTML = '<div class="empty-msg"><div class="spinner" style="margin:0 auto 20px;"></div><p>جاري تحميل القنوات...</p></div>';
 
-        if (list.length === 0) {
-            mainGrid.innerHTML = '<div class="empty-msg"><h2>لا توجد قنوات حالياً</h2><p>قم بإضافتها من لوحة التحكم</p></div>';
-            return;
-        }
+        window.DB.listen('channels', function(list) {
+            mainGrid.innerHTML = '';
 
-        list.forEach(function(ch, idx) {
-            var el = document.createElement('div');
-            el.className = 'ch-card';
-            el.innerHTML = '<i class="fas fa-tv"></i>' +
-                          '<h3>' + ch.name + '</h3>' +
-                          '<button class="watch-btn" data-idx="'+idx+'">شاهد الآن</button>';
-            
-            // Critical: Use event listener on the card or button
-            el.querySelector('.watch-btn').onclick = function(e) {
-                e.stopPropagation();
-                openStream(ch);
-            };
-            el.onclick = function() {
-                openStream(ch);
-            };
+            if (!list || list.length === 0) {
+                mainGrid.innerHTML = '<div class="empty-msg"><h2>لا توجد قنوات حالياً</h2><p>قم بإضافتها من لوحة التحكم</p></div>';
+                return;
+            }
 
-            mainGrid.appendChild(el);
+            list.forEach(function(ch, idx) {
+                var el = document.createElement('div');
+                el.className = 'ch-card';
+                el.innerHTML = '<i class="fas fa-tv"></i>' +
+                    '<h3>' + ch.name + '</h3>' +
+                    '<button class="watch-btn" data-idx="' + idx + '">شاهد الآن</button>';
+
+                el.querySelector('.watch-btn').onclick = function(e) {
+                    e.stopPropagation();
+                    openStream(ch);
+                };
+                el.onclick = function() { openStream(ch); };
+
+                mainGrid.appendChild(el);
+            });
         });
     }
 
