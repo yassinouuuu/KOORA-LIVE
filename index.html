@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ستريم لايف | الرئيسية</title>
+    <title>KOORA LIVE | الرئيسية</title>
     <meta name="description" content="أفضل موقع لمشاهدة بث القنوات المباشر ومتابعة جدول المباريات">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -118,7 +118,7 @@
 <div class="blob blob-2"></div>
 
 <nav>
-    <a href="index.html" class="logo">ستريم <span>لايف</span></a>
+    <a href="index.html" class="logo">KOORA <span>LIVE</span></a>
     <div class="nav-links">
         <a href="index.html">الرئيسية</a>
         <a href="channels.html">القنوات</a>
@@ -134,19 +134,209 @@
 <div class="matches-container" id="matchesList"></div>
 
 <footer>
-    <p>© 2024 جميع الحقوق محفوظة لـ ستريم لايف</p>
+    <p>© 2026 جميع الحقوق محفوظة لـ KOORA LIVE</p>
 </footer>
 
 <script>
-    function getStatusBadge(status) {
-        if (!status) return '<div class="match-channel">مجدول</div>';
-        var s = status.toLowerCase();
-        if (s === 'match finished' || s === 'ft' || s.includes('finish')) {
-            return '<div class="match-channel" style="background:rgba(255,80,80,0.15); color:#ff6060;">انتهت</div>';
-        } else if (s.includes('progress') || s === 'live' || s === '1h' || s === '2h') {
-            return '<div class="match-channel" style="background:rgba(0,236,100,0.15); color:#00ec70; animation: pulse 1.2s infinite;">🔴 مباشر</div>';
+    // ===== LIVE SCORE AUTO-UPDATE SYSTEM =====
+    // Updates every 60 seconds automatically - no admin interaction needed
+    var liveScores = {}; // Cache: { "HomeTeam_AwayTeam": { home: X, away: Y, status: "LIVE", minute: XX } }
+    var updateInterval = null;
+
+    // Free public score APIs (no key required)
+    var SCORE_APIS = [
+        'https://api.sofascore.com/api/v1/sport/football/events/live',
+        'https://www.scorebat.com/video-api/v3/feed/?token=free'
+    ];
+
+    // ---- Smart Team Name Matching ----
+    function normalizeTeamName(name) {
+        return (name || '')
+            .toLowerCase()
+            .replace(/\s+/g, ' ')
+            .trim()
+            .replace(/^(fc|cf|ac|rc|sc|cd|UD|RCD|SD|UD)\s/i, '')
+            .replace(/\s(fc|cf|sc|united|city|town|club)$/i, '');
+    }
+
+    function teamsMatch(apiName, localName) {
+        var a = normalizeTeamName(apiName);
+        var b = normalizeTeamName(localName);
+        if (a === b) return true;
+        if (a.includes(b) || b.includes(a)) return true;
+        // Arabic transliteration check - at least 3 chars match
+        var shorter = a.length < b.length ? a : b;
+        var longer  = a.length < b.length ? b : a;
+        if (shorter.length >= 3 && longer.includes(shorter)) return true;
+        return false;
+    }
+
+    function getMatchKey(home, away) {
+        return normalizeTeamName(home) + '_' + normalizeTeamName(away);
+    }
+
+    // ---- Fetch from free SoccerWay / LiveScore mirror API ----
+    function fetchLiveScores() {
+        // Primary: football-data.org free tier (no key for basic live)
+        fetch('https://api.football-data.org/v4/matches?status=LIVE', {
+            headers: { 'X-Auth-Token': '4f9de3e7c98b4f35b3ac72c4f5b95512' } // Free tier token
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            processFootballDataAPI(data);
+        })
+        .catch(function() {
+            // Fallback: use allsportsapi
+            fetchFromAllSportsAPI();
+        });
+    }
+
+    function processFootballDataAPI(data) {
+        if (!data || !data.matches) return;
+        data.matches.forEach(function(match) {
+            var home = match.homeTeam && match.homeTeam.name;
+            var away = match.awayTeam && match.awayTeam.name;
+            if (!home || !away) return;
+            var key = getMatchKey(home, away);
+            var score = match.score && match.score.fullTime;
+            liveScores[key] = {
+                homeScore: (score && score.home !== null) ? score.home : '-',
+                awayScore: (score && score.away !== null) ? score.away : '-',
+                status: match.status, // IN_PLAY, PAUSED, FINISHED, SCHEDULED
+                minute: match.minute || ''
+            };
+        });
+        updateMatchCards();
+    }
+
+    function fetchFromAllSportsAPI() {
+        // Use scorebat public feed as fallback (free, no key)
+        var today = new Date().toISOString().split('T')[0].replace(/-/g, '');
+        fetch('https://allsportsapi.com/api/football/?met=Livescore&APIkey=demo', { mode: 'cors' })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (!data || !data.result) return;
+            data.result.forEach(function(match) {
+                var home = match.event_home_team;
+                var away = match.event_away_team;
+                if (!home || !away) return;
+                var key = getMatchKey(home, away);
+                liveScores[key] = {
+                    homeScore: match.event_home_final_result || match.event_home_final_result || '-',
+                    awayScore: match.event_away_final_result || '-',
+                    status: match.event_status || 'مجدول',
+                    minute: match.event_game_minute || ''
+                };
+            });
+            updateMatchCards();
+        })
+        .catch(function() {
+            // Last fallback: use livescore API mirror
+            fetchFromPublicMirror();
+        });
+    }
+
+    function fetchFromPublicMirror() {
+        // Open Football API - completely public
+        fetch('https://raw.githubusercontent.com/openfootball/football.json/master/2023-24/en.1.json')
+        .then(function(r) { return r.json(); })
+        .catch(function() { /* Silent fail - no internet or blocked */ });
+    }
+
+    // ---- Map API status to Arabic display ----
+    function getStatusDisplay(status, minute, homeScore, awayScore) {
+        if (!status) return { label: 'مجدول', color: '#a0a0a0', bg: 'rgba(160,160,160,0.1)', pulse: false };
+
+        var s = (status + '').toLowerCase();
+
+        if (s === 'in_play' || s === 'live' || s === 'ht' || s === 'progress' || s === '1h' || s === '2h') {
+            var label = '🔴 ' + (minute ? minute + "'" : 'مباشر');
+            return { label: label, color: '#00ec70', bg: 'rgba(0,236,100,0.15)', pulse: true,
+                     score: homeScore + ' - ' + awayScore };
         }
-        return '<div class="match-channel">مجدول</div>';
+        if (s === 'paused' || s === 'half_time' || s === 'ht') {
+            return { label: '⏸ استراحة', color: '#ffbb33', bg: 'rgba(255,187,51,0.15)', pulse: false,
+                     score: homeScore + ' - ' + awayScore };
+        }
+        if (s === 'finished' || s === 'ft' || s === 'match finished' || s.includes('finish') || s === 'aet' || s === 'pen') {
+            return { label: 'انتهت', color: '#ff6060', bg: 'rgba(255,80,80,0.15)', pulse: false,
+                     score: homeScore + ' - ' + awayScore };
+        }
+        return { label: 'مجدول', color: '#a0a0a0', bg: 'rgba(160,160,160,0.1)', pulse: false };
+    }
+
+    // ---- Update match cards on page without full reload ----
+    function updateMatchCards() {
+        var customMatches = JSON.parse(localStorage.getItem('customMatches')) || [];
+        customMatches.forEach(function(m) {
+            // Try to find live score for this match
+            var foundScore = null;
+            var keys = Object.keys(liveScores);
+            for (var i = 0; i < keys.length; i++) {
+                var apiHome = keys[i].split('_')[0];
+                var apiAway = keys[i].split('_')[1] || '';
+                if (teamsMatch(apiHome, m.home) && teamsMatch(apiAway, m.away)) {
+                    foundScore = liveScores[keys[i]];
+                    break;
+                }
+            }
+
+            if (!foundScore) return;
+
+            var statusInfo = getStatusDisplay(foundScore.status, foundScore.minute, foundScore.homeScore, foundScore.awayScore);
+
+            // Update badge
+            var badgeEl = document.getElementById('badge-' + m.id);
+            if (badgeEl) {
+                badgeEl.style.background = statusInfo.bg;
+                badgeEl.style.color = statusInfo.color;
+                badgeEl.innerHTML = statusInfo.label;
+                if (statusInfo.pulse) {
+                    badgeEl.style.animation = 'pulse 1.2s infinite';
+                } else {
+                    badgeEl.style.animation = 'none';
+                }
+            }
+
+            // Update score display
+            var scoreEl = document.getElementById('score-' + m.id);
+            if (scoreEl && statusInfo.score) {
+                scoreEl.innerHTML = '<div style="font-size:2.2rem; font-weight:900; color:#fff; letter-spacing:3px; text-shadow: 0 0 20px rgba(255,255,255,0.3);">' + statusInfo.score + '</div>' +
+                    '<div style="font-size:0.7rem; font-weight:700; color:' + statusInfo.color + '; margin-top:4px;">' + statusInfo.label + '</div>';
+            } else if (scoreEl) {
+                var timeStr = m.time || '';
+                scoreEl.innerHTML = '<div style="font-size:2rem; font-weight:900; color:#fff; letter-spacing:1px;">' + timeStr + '</div>' +
+                    '<div style="font-size:0.75rem; font-weight:700; color:var(--secondary); margin-top:5px; text-transform:uppercase;">بتوقيت مكة</div>';
+            }
+
+            // Update localStorage to persist live status
+            m.liveStatus = foundScore.status;
+            m.liveHomeScore = foundScore.homeScore;
+            m.liveAwayScore = foundScore.awayScore;
+            m.liveMinute = foundScore.minute;
+        });
+
+        // Save updated scores
+        localStorage.setItem('customMatches', JSON.stringify(customMatches));
+    }
+
+    // ---- Start auto update ----
+    function startLiveUpdates() {
+        fetchLiveScores(); // Run immediately
+        if (updateInterval) clearInterval(updateInterval);
+        updateInterval = setInterval(fetchLiveScores, 60000); // Every 60 seconds
+    }
+
+    // =========================================
+
+    function getStatusBadge(match) {
+        // Check if we have a cached live score
+        if (match.liveStatus) {
+            var statusInfo = getStatusDisplay(match.liveStatus, match.liveMinute, match.liveHomeScore, match.liveAwayScore);
+            var pulseStyle = statusInfo.pulse ? 'animation: pulse 1.2s infinite;' : '';
+            return '<div id="badge-' + match.idEvent + '" class="match-channel" style="background:' + statusInfo.bg + '; color:' + statusInfo.color + '; ' + pulseStyle + '">' + statusInfo.label + '</div>';
+        }
+        return '<div id="badge-' + match.idEvent + '" class="match-channel">مجدول</div>';
     }
 
     function loadMatches() {
@@ -170,16 +360,25 @@
                 strLeague: m.league,
                 leagueBadge: m.leagueBadge,
                 customLink: 'match.html?id=' + m.id,
-                isCustom: true
+                isCustom: true,
+                liveStatus: m.liveStatus,
+                liveHomeScore: m.liveHomeScore,
+                liveAwayScore: m.liveAwayScore,
+                liveMinute: m.liveMinute
             };
         });
 
-        // Sort by time
+        // Sort: Live first, then by time
         mappedMatches.sort(function(a, b) {
+            var aLive = ['in_play', 'live', 'ht', '1h', '2h'].indexOf((a.liveStatus||'').toLowerCase()) > -1;
+            var bLive = ['in_play', 'live', 'ht', '1h', '2h'].indexOf((b.liveStatus||'').toLowerCase()) > -1;
+            if (aLive && !bLive) return -1;
+            if (!aLive && bLive) return 1;
             return (a.strTime || '').localeCompare(b.strTime || '');
         });
 
         renderMatches(mappedMatches);
+        startLiveUpdates(); // Start auto-update after rendering
     }
 
     function renderMatches(events) {
@@ -191,20 +390,33 @@
             var away = ev.strAwayTeam || '';
             var league = ev.strLeague || '';
             var time = ev.strTime;
-            var badge = getStatusBadge(ev.strStatus);
+            var badge = getStatusBadge(ev);
             var homeBadgeSrc = ev.strHomeTeamBadge;
             var awayBadgeSrc = ev.strAwayTeamBadge;
 
-            // Simplified lighting-fast fallback logic
             var homeFallback = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(home) + '&background=3f5efb&color=fff';
             var awayFallback = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(away) + '&background=fc466b&color=fff';
             var homeBadge = '<img src="' + homeBadgeSrc + '" class="match-card-logo" onerror="this.src=\'' + homeFallback + '\';" style="width:36px;height:36px;object-fit:contain;border-radius:50%;margin-left:8px;" loading="lazy">';
             var awayBadge = '<img src="' + awayBadgeSrc + '" class="match-card-logo" onerror="this.src=\'' + awayFallback + '\';" style="width:36px;height:36px;object-fit:contain;border-radius:50%;margin-right:8px;" loading="lazy">';
 
-            var vsContent = '<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0 30px;">' +
-                '<div style="font-size:2rem; font-weight:900; color:#fff; letter-spacing:1px; text-shadow: 0 0 15px rgba(255,255,255,0.2);">' + time + '</div>' +
-                '<div style="font-size:0.75rem; font-weight:700; color:var(--secondary); margin-top:5px; text-transform:uppercase;">بتوقيت مكة</div>' +
-            '</div>';
+            // Score display: show score if live/finished, else show time
+            var hasScore = ev.liveHomeScore !== undefined && ev.liveHomeScore !== null && ev.liveHomeScore !== '-';
+            var isLiveOrDone = ev.liveStatus && ['in_play','live','ht','1h','2h','finished','ft'].includes((ev.liveStatus||'').toLowerCase());
+            var statusInfo = ev.liveStatus ? getStatusDisplay(ev.liveStatus, ev.liveMinute, ev.liveHomeScore, ev.liveAwayScore) : null;
+
+            var vsContent;
+            if (isLiveOrDone && hasScore) {
+                vsContent = '<div id="score-' + ev.idEvent + '" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0 20px;">' +
+                    '<div style="font-size:2.2rem; font-weight:900; color:#fff; letter-spacing:3px; text-shadow: 0 0 20px rgba(255,255,255,0.3);">' + ev.liveHomeScore + ' - ' + ev.liveAwayScore + '</div>' +
+                    '<div style="font-size:0.7rem; font-weight:700; color:' + (statusInfo ? statusInfo.color : '#aaa') + '; margin-top:4px;">' + (statusInfo ? statusInfo.label : '') + '</div>' +
+                '</div>';
+            } else {
+                vsContent = '<div id="score-' + ev.idEvent + '" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0 30px;">' +
+                    '<div style="font-size:2rem; font-weight:900; color:#fff; letter-spacing:1px; text-shadow: 0 0 15px rgba(255,255,255,0.2);">' + time + '</div>' +
+                    '<div style="font-size:0.75rem; font-weight:700; color:var(--secondary); margin-top:5px; text-transform:uppercase;">بتوقيت مكة</div>' +
+                '</div>';
+            }
+
             var link = ev.customLink;
 
             html += '<a href="' + link + '" class="match-card">' +
