@@ -15,13 +15,13 @@
 // =====================================================
 
 const firebaseConfig = {
-    apiKey:            "PASTE_YOUR_API_KEY_HERE",
-    authDomain:        "PASTE_YOUR_AUTH_DOMAIN_HERE",
-    databaseURL:       "PASTE_YOUR_DATABASE_URL_HERE",
-    projectId:         "PASTE_YOUR_PROJECT_ID_HERE",
-    storageBucket:     "PASTE_YOUR_STORAGE_BUCKET_HERE",
-    messagingSenderId: "PASTE_YOUR_SENDER_ID_HERE",
-    appId:             "PASTE_YOUR_APP_ID_HERE"
+  apiKey: "AIzaSyBoCT3hUgvjaYqqsZU0Kc_a3qa932MHq-U",
+  authDomain: "kooralive-bc7f9.firebaseapp.com",
+  databaseURL: "https://kooralive-bc7f9-default-rtdb.firebaseio.com",
+  projectId: "kooralive-bc7f9",
+  storageBucket: "kooralive-bc7f9.firebasestorage.app",
+  messagingSenderId: "761757816089",
+  appId: "1:761757816089:web:19683362a0948917d82188"
 };
 
 // ---- Initialize Firebase ----
