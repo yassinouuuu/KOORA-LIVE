@@ -58,11 +58,9 @@ window.DB = {
 
     // Get data once (from localStorage cache, then refresh from cloud)
     get: function(key, callback) {
-        // Immediately return localStorage data (fast)
         var cached = JSON.parse(localStorage.getItem(key)) || [];
         callback(cached);
 
-        // Then fetch from cloud and update if different
         if (window.FIREBASE_READY && window.db) {
             window.db.ref(key).once('value')
                 .then(function(snapshot) {
@@ -72,19 +70,27 @@ window.DB = {
                         localStorage.setItem(key, JSON.stringify(data));
                         callback(data);
                     }
-                })
-                .catch(function(err) { console.warn('[DB] Cloud read failed:', err); });
+                });
         }
     },
 
     // Listen for real-time changes (live updates)
     listen: function(key, callback) {
-        // Start with cached data immediately
-        var cached = JSON.parse(localStorage.getItem(key)) || [];
-        callback(cached);
+        var localData = JSON.parse(localStorage.getItem(key)) || [];
+        
+        // Initial fast render from cache
+        callback(localData);
 
-        // Then subscribe to real-time Firebase updates
         if (window.FIREBASE_READY && window.db) {
+            // First time sync check: if local has data but cloud is empty, migrate to cloud
+            window.db.ref(key).once('value').then(function(snapshot) {
+                if (snapshot.val() === null && localData.length > 0) {
+                    console.log('[DB] Migrating local data to cloud for:', key);
+                    window.db.ref(key).set(localData);
+                }
+            });
+
+            // Listen for regular updates
             window.db.ref(key).on('value', function(snapshot) {
                 var cloudData = snapshot.val();
                 if (cloudData !== null) {
@@ -92,6 +98,7 @@ window.DB = {
                     localStorage.setItem(key, JSON.stringify(data));
                     callback(data);
                 } else {
+                    // Only return empty if local is also empty (or after migration finishes)
                     callback([]);
                 }
             });
