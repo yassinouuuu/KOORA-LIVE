@@ -1,0 +1,157 @@
+<!-- match.html -->
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بث مباشر | مباراة</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .match-page-container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
+        .match-header { 
+            background: var(--card-bg); 
+            backdrop-filter: var(--glass-blur); 
+            border-radius: var(--radius); 
+            padding: 40px; 
+            text-align: center; 
+            border: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 30px;
+        }
+        .match-title { font-size: 2.2rem; margin-bottom: 20px; background: linear-gradient(to right, #fff, #aaa); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; }
+        .match-desc-box { 
+            background: var(--card-bg); 
+            padding: 40px; 
+            border-radius: var(--radius); 
+            margin-top: 40px; 
+            border: 1px solid rgba(255,255,255,0.05); 
+            line-height: 2;
+            color: var(--text-color);
+            text-align: justify;
+        }
+        .match-desc-box h2 { color: var(--secondary-color); margin-bottom: 20px; font-size: 1.8rem; }
+        .teams-logos { display: flex; align-items: center; justify-content: center; gap: 40px; margin-bottom: 20px; }
+        .team-logo-large { width: 120px; height: 120px; object-fit: contain; filter: drop-shadow(0 0 15px rgba(255,255,255,0.1)); }
+        .vs-text { font-size: 2.5rem; font-weight: 800; color: var(--secondary-color); }
+        .player-section { margin-top: 0px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="logo"><i class="fas fa-play-circle"></i> <span>ستريم<span>لايف</span></span></a>
+            <div class="nav-links">
+                <a href="index.html">الرئيسية</a>
+                <a href="channels.html">القنوات</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="match-page-container">
+        <div id="matchContent">
+            <div class="loader-container" style="text-align:center; padding:100px;">
+                <div class="loader"></div>
+                <p>جاري تحميل تفاصيل المباراة...</p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>© 2024 جميع الحقوق محفوظة لـ ستريم لايف</p>
+    </footer>
+
+    <script src="teams-db.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const matchId = urlParams.get('id');
+            const storedMatches = JSON.parse(localStorage.getItem('customMatches')) || [];
+            const match = storedMatches.find(m => m.id == matchId);
+
+            if (!match) {
+                document.getElementById('matchContent').innerHTML = '<div style="text-align:center; padding:50px;"><h2>المباراة غير موجودة</h2><a href="index.html" class="btn-primary" style="display:inline-block; width:auto; margin-top:20px;">العودة للرئيسية</a></div>';
+                return;
+            }
+
+            // AI-Powered Detailed Description Generator (SEO Optimized - ~1000 words)
+            const generateDetailedDescription = (h, a, l) => {
+                const paragraphs = [];
+                paragraphs.push(`مرحباً بكم زوارنا الكرام في تغطية حصرية ومباشرة عبر منصتكم المفضلة "ستريم لايف"، حيث نلتقي اليوم في واحدة من أهم وأبرز المواجهات الكروية التي يترقبها عشاق الساحرة المستديرة في كل مكان. تتجه أنظار الملايين من محبي كرة القدم نحو هذه القمة الكروية النارية التي تجمع بين فريق ${h} ونظيره العنيد فريق ${a}، وذلك في إطار منافسات الجولة الحاسمة من بطولة ${l}. هذه المباراة ليست مجرد تسعين دقيقة اعتيادية، بل هي ملحمة كروية يتوقع أن تشهد الكثير من الإثارة، الندية، والأهداف الرائعة نظراً للقيمة الفنية العالية التي يمتلكها كلا الفريقين. نحن هنا لنقدم لكم أفضل تجربة مشاهدة ممكنة، حيث نسعى جاهدين لتوفير بث مباشر عالي السلاسة وبدون أي تقطيع، لضمان استمتاعكم بكل لحظة من لحظات هذا اللقاء التاريخي.`);
+                paragraphs.push(`تكتسب هذه المواجهة بين ${h} و ${a} أهمية مضاعفة نظراً للموقف الحالي لكلا الفريقين في جدول ترتيب ${l}. ففي عالم كرة القدم الحديثة، كل نقطة تمثل فارقاً جوهرياً في مسيرة التتويج بالألقاب أو تجنب شبح الهبوط أو حتى ضمان مقعد مؤهل للبطولات القارية. بطولة ${l} لطالما عودتنا على المفاجآت والسيناريوهات الدرامية التي تحبس الأنفاس حتى الثواني الأخيرة. الجمهور اليوم لا يبحث فقط عن الانتصار، بل عن الأداء الممتع والروح القتالية التي تميز الكبار. إن الصراع التكتيكي المنتظر بين الأجهزة الفنية سيلعب دوراً محورياً في حسم هذه المعركة، حيث يسعى كل مدرب لفرض أسلوب لعبه واستغلال نقاط ضعف الخصم بأفضل طريقة ممكنة.`);
+                paragraphs.push(`إذا نظرنا عن قرب إلى فريق ${h}، فإنه يدخل هذا اللقاء متسلحاً بعاملي الأرض والجمهور - في حال أقيمت المباراة على ملعبه - وهو عامل لا يمكن الاستهانة به في رفع الروح المعنوية للاعبين وبث الرعب في قلوب المنافسين. ويمتلك ${h} كوكبة من النجوم البارزين الذين يتمتعون بمهارات فردية استثنائية قادرة على صنع الفارق في أي لحظة. تاريخ النادي حافل بالبطولات والإنجازات التي تجعل من قميصه مصدر فخر لكل من يرتديه ومصدر تهديد لكل من يواجهه. خط الهجوم لدى ${h} يتميز بالسرعة الفائقة والحسم أمام المرمى، بينما يعتمد خط الوسط على البناء المنظم للهجمات والسيطرة على إيقاع اللعب، مما يجعلهم خصماً صعب المراس في بطولة ${l}.`);
+                paragraphs.push(`في المقابل، لا يمكن بأي حال من الأحوال التقليل من شأن فريق ${a}، الذي أثبت مراراً وتكراراً قدرته على قهر الصعاب والتفوق على أقوى المنافسين حتى خارج ميدانه. يتميز ${a} بشخصية البطل وعقلية الانتصارات التي ترفض الاستسلام مهما كانت الظروف المقابلة. استراتيجية ${a} غالباً ما تتسم بالانضباط التكتيكي العالي، الصلابة الدفاعية، والاعتماد السريع على الهجمات المرتدة الخاطفة التي تمزق دفاعات الخصوم. جماهير ${a} التي زحفت لمؤازرة فريقها تأمل في رؤية فريقها يحصد النقاط الثلاث ويقدم رسالة تحذير شديدة اللهجة لباقي المنافسين في ${l}.`);
+                paragraphs.push(`المعركة الحقيقية اليوم لن تكون فقط بين اللاعبين داخل المستطيل الأخضر، بل ستتجلى أيضاً في المنطقة الفنية بين المدربين. كلاهما يمتلك دهاءاً كروياً ورؤية ثاقبة لقراءة مجريات اللعب وإجراء التبديلات الحاسمة التي قد تقلب موازين المباراة. هل سيعتمد مدرب ${h} على الضغط العالي والحصار الهجومي المبكر؟ أم سيختار مدرب ${a} امتصاص حماس البداية وضرب دفاعات الخصم بالسرعات على الأطراف؟ وتظل الأنظار معلقة على مفاتيح اللعب والنجوم الذين تعول عليهم الجماهير لفك شفرة هذه القمة، سواء عبر تسديدة بعيدة المدى، تمريرة بينية سحرية، أو ارتقاء رأسي قوي يمزق الشباك. هذه هي التفاصيل الدقيقة التي تصنع الفارق في مباريات ${l} القوية.`);
+                paragraphs.push(`تاريخ المواجهات المباشرة بين ${h} و ${a} هو كتاب مفتوح مليء بالحكايات والأساطير الكروية. لطالما شهدت مبارياتهما السابقة غزارة تهديفية، بطاقات ملونة، واندفاعاً بدنياً يعكس حجم المنافسة الشرسة بينهما. هذه الديربيات والكلاسيكيات الخاصة تُلعب على جزئيات صغيرة، والتركيز الذهني طوال فترة المباراة هو المفتاح الوحيد لتجنب الأخطاء القاتلة. الإعلام الرياضي سُلّطت أضواؤه بالكامل على هذه القمة، والمحللون أفردوا ساعات طويلة لتشريح التشكيلات المتوقعة ونقاط القوة والضعف، مما يزيد من حجم الضغوطات الملقاة على عاتق أطقم الفريقين لتقديم أداء يرضي طموحات المشجعين ويليق بعراقة ${l}.`);
+                paragraphs.push(`لماذا تعتبر منصة "ستريم لايف" الخيار الأول والأمثل لمتابعة مباريات كرة القدم؟ نحن هنا نعي تماماً المشاكل التي تواجه المشاهد العربي من تقطيع مستمر ومزعج للإعلانات المنبثقة، لذلك حرصنا على توفير بيئة مشاهدة استثنائية ومجانية تماماً. نقدم لكم اليوم بث مباشر عالي الجودة لمباراة ${h} ضد ${a}، بفضل سيرفراتنا القوية والمتعددة التي تضمن استقرار البث مهما بلغ عدد المشاهدين في وقت واحد. البث الخاص بنا يتكيف تلقائياً مع سرعة الإنترنت لديكم، حيث تتوفر جودات تبدأ من 144p لأصحاب الباقات والإنترنت الضعيف، وصولاً إلى جودات 720p HD و 1080p FHD و 4K لأصحاب الشاشات الكبيرة والإنترنت فائق السرعة. ستستمتعون بتعليق عربي حماسي ومتميز ينقل لكم نبض المدرجات، لتشعروا وكأنكم متواجدون فعلياً في قلب الحدث.`);
+                paragraphs.push(`تغطيتنا لهذه المباراة الكبيرة في ${l} لا تقتصر فقط على الدقائق التسعين للمباراة. يمكنكم هنا عبر موقع "ستريم لايف" متابعة التشكيلات الرسمية للفريقين فور الإعلان عنها، بالإضافة إلى إحصائيات حية ودقيقة أثناء اللقاء مثل نسبة الاستحواذ، عدد التسديدات، التمريرات، والركنيات. كما سيوفر لكم الموقع تغطية كاملة ومتجددة لأهم أحداث المباراة من أهداف، إنذارات، وتبديلات. وإذا فاتكم البث المباشر، لا تقلقوا، فنحن نوفر لكم ملخصات شاملة وأهداف المباراة فور انتهاء صافرة الحكم، لضمان بقائكم على إطلاع دائم بكل مجريات كرة القدم المحلية والعالمية.`);
+                paragraphs.push(`للباحثين عن الروابط السريعة والمضمونة عبر محركات البحث، أنتم في المكان الصحيح. هنا نوفر لكم بث مباشر مباراة ${h}، يلا شوت مباريات اليوم، كورة لايف مشاهدة مباراة ${h} و ${a}، شاهد برابط مباشر وبدون إعلانات مزعجة أحداث لقاء ${a} ضمن منافسات ${l}. نغطي لكم كافة البطولات الأوروبية والعربية والمحلية، لتتمكنوا من متابعة دربيات العالم والكلاسيكو بكل أريحية. فريق عمل ستريم لايف يعمل على مدار الساعة لضمان وصول الخدمة بأفضل شكل ممكن، ويتم تحديث سيرفرات المشاهدة بشكل مستمر قبل وأثناء المباراة لضمان عدم توقف البث أبداً.`);
+                paragraphs.push(`في الختام، عشاق الساحرة المستديرة، نحن على موعد مع سهرة كروية دسمة لا ينبغي تفويتها بأي حال من الأحوال. جهزوا أنفسكم، اجمعوا أصدقاءكم، واستعدوا لجرعة مكثفة من الأدرينالين والإثارة مع أبطال ${h} وصناديد ${a}. شاركوا رابط البث المباشر مع معارفكم عبر وسائل التواصل الاجتماعي لتكبر متعة المشاهدة الجماعية. ستبدأ المباراة في تمام الساعة ${match.time} بتوقيتكم المحلي، فكونوا على الموعد وتأكدوا من تواجدكم المبكر لضمان حجز مقعدكم الافتراضي في سيرفراتنا السريعة. نشكر لكم ثقتكم الدائمة في منصة ستريم لايف، ونتمنى للجميع مشاهدة ممتعة ومبهرة تليق بمقام بطولة ${l} المرموقة.`);
+                return paragraphs.join('\n\n');
+            };
+
+            const generateKeywords = (h, a, l) => {
+                return `${h}, ${a}, ${l}, بث مباشر مباراة ${h}, مشاهدة مباراة ${h} و ${a}, كورة لايف, يلا شوت، بث مباشر مباريات اليوم، ${h} ضد ${a}، اهداف مباراة ${h}، ملخص ${a}، رابط مباشر ${h}`;
+            };
+
+            // Force override description so it displays 1000 words dynamically for any match!
+            match.description = generateDetailedDescription(match.home, match.away, match.league);
+            match.keywords = generateKeywords(match.home, match.away, match.league);
+
+            // SEO Dynamic Headers
+            document.title = match.title;
+            const metaDesc = document.createElement('meta');
+            metaDesc.name = "description";
+            metaDesc.content = match.description.substring(0, 160);
+            document.head.appendChild(metaDesc);
+            
+            const metaKeys = document.createElement('meta');
+            metaKeys.name = "keywords";
+            metaKeys.content = match.keywords;
+            document.head.appendChild(metaKeys);
+
+            let iframeCode = match.iframe;
+            if (!iframeCode.startsWith('<iframe') && iframeCode.startsWith('http')) {
+                iframeCode = `<iframe src="${iframeCode}" allowfullscreen></iframe>`;
+            }
+
+            const getFallback = (name) => `onerror="this.src='https://logo.clearbit.com/${name.toLowerCase().replace(/ /g,'')}.com?size=150'; this.onerror=function(){this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&size=200';};"`;
+
+            const html = `
+                <div class="match-header">
+                    <div class="teams-logos">
+                        <img src="${match.homeBadge}" class="team-logo-large" ${getFallback(match.home)}>
+                        <div class="vs-text">VS</div>
+                        <img src="${match.awayBadge}" class="team-logo-large" ${getFallback(match.away)}>
+                    </div>
+                    <h1 class="match-title">${match.title}</h1>
+                    <div class="match-info">
+                        <span style="color:var(--secondary-color); font-weight:700;"><i class="fas fa-trophy"></i> ${match.league}</span>
+                        <span style="margin-right:20px; color:var(--text-dim);"><i class="fas fa-clock"></i> ${match.time}</span>
+                    </div>
+                </div>
+
+                <div class="player-section">
+                    <div class="player-container">
+                        <div class="player-header">
+                            <span><i class="fas fa-satellite-dish"></i> بث مباشر بجودة عالية - سيرفر خاص</span>
+                        </div>
+                        <div class="player-wrapper">
+                            ${iframeCode}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="match-desc-box">
+                    <h2><i class="fas fa-file-alt"></i> تفاصيل مباراة ${match.home} و ${match.away}</h2>
+                    <div style="white-space: pre-wrap;">${match.description}</div>
+                    <div style="margin-top:30px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.05); font-size:0.85rem; color:var(--text-dim);">
+                        <strong>كلمات دلالية:</strong> ${match.keywords}
+                    </div>
+                </div>
+            `;
+            document.getElementById('matchContent').innerHTML = html;
+        });
+    </script>
+</body>
+</html>

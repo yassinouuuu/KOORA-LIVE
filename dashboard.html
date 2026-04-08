@@ -59,6 +59,65 @@
                 <!-- Channels will list here -->
             </div>
         </div>
+
+        <div class="admin-card">
+            <h2><i class="fas fa-futbol"></i> إضافة مباراة</h2>
+            <form id="addMatchForm">
+
+                <div class="form-group" style="display:grid; grid-template-columns:1fr auto; gap:10px; align-items:end;">
+                    <div>
+                        <label>اسم الفريق الأول</label>
+                        <input type="text" id="matchHome" placeholder="مثال: ريال مدريد" required>
+                    </div>
+                    <img id="previewHomeLogo" src="" style="width:48px;height:48px;object-fit:contain;border-radius:8px;background:rgba(255,255,255,0.05);padding:4px;" onerror="this.style.opacity='0'" onload="this.style.opacity='1'">
+                </div>
+                <div class="form-group">
+                    <label>رابط شعار الفريق الأول</label>
+                    <input type="text" id="matchHomeBadge" placeholder="https://...jpg أو png">
+                </div>
+
+                <div class="form-group" style="display:grid; grid-template-columns:1fr auto; gap:10px; align-items:end;">
+                    <div>
+                        <label>اسم الفريق الثاني</label>
+                        <input type="text" id="matchAway" placeholder="مثال: برشلونة" required>
+                    </div>
+                    <img id="previewAwayLogo" src="" style="width:48px;height:48px;object-fit:contain;border-radius:8px;background:rgba(255,255,255,0.05);padding:4px;" onerror="this.style.opacity='0'" onload="this.style.opacity='1'">
+                </div>
+                <div class="form-group">
+                    <label>رابط شعار الفريق الثاني</label>
+                    <input type="text" id="matchAwayBadge" placeholder="https://...jpg أو png">
+                </div>
+
+                <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div>
+                        <label>الوقت</label>
+                        <input type="time" id="matchTime" required>
+                    </div>
+                    <div>
+                        <label>البطولة</label>
+                        <input type="text" id="matchLeague" placeholder="مثال: دوري أبطال أوروبا" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>كود الـ IFRAME أو رابط البث</label>
+                    <textarea id="matchIframe" placeholder="ألصق كود المشغل هنا" required></textarea>
+                </div>
+
+                <button type="submit" class="btn-primary">حفظ المباراة <i class="fas fa-save"></i></button>
+            </form>
+        </div>
+
+        <div class="admin-card">
+            <h2><i class="fas fa-tasks"></i> مباريات اليوم الحالية</h2>
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
+                <button id="btnFixLogos" class="btn-test" style="width:auto; padding:8px 20px;"><i class="fas fa-sync"></i> إصلاح الشعارات</button>
+                <button onclick="clearAllMatches()" class="btn-delete" style="padding:8px 20px;"><i class="fas fa-trash"></i> حذف الكل</button>
+            </div>
+            <div id="adminMatchesList" class="channels-manage-list">
+                <!-- Matches will list here -->
+            </div>
+        </div>
     </main>
 
     <footer class="footer">
@@ -67,6 +126,7 @@
         </div>
     </footer>
 
+    <script src="teams-db.js"></script>
     <script src="dashboard.js"></script>
 </body>
 </html>

@@ -23,11 +23,11 @@
 
         /* Background blobs */
         .blob {
-            position: fixed; border-radius: 50%; filter: blur(120px); opacity: 0.1; z-index: -1;
+            position: fixed; border-radius: 50%; opacity: 0.15; z-index: -1;
             animation: blobFloat 20s infinite alternate ease-in-out;
         }
-        .blob-1 { width: 600px; height: 600px; background: var(--primary); top: -200px; left: -200px; }
-        .blob-2 { width: 500px; height: 500px; background: var(--secondary); bottom: -200px; right: -200px; animation-delay: -5s; }
+        .blob-1 { width: 600px; height: 600px; background: radial-gradient(circle, var(--primary) 0%, transparent 70%); top: -200px; left: -200px; }
+        .blob-2 { width: 500px; height: 500px; background: radial-gradient(circle, var(--secondary) 0%, transparent 70%); bottom: -200px; right: -200px; animation-delay: -5s; }
         @keyframes blobFloat { 0% { transform: translate(0,0); } 100% { transform: translate(80px,80px); } }
 
         /* Navbar */
@@ -44,35 +44,10 @@
         .nav-links a { color: #fff; text-decoration: none; margin-right: 20px; font-weight: 600; font-size: 0.95rem; transition: 0.2s; }
         .nav-links a:hover { color: var(--secondary); }
 
-        /* Hero */
-        .hero {
-            text-align: center;
-            padding: 80px 20px 40px;
-        }
-        .hero h1 {
-            font-size: 3.5rem;
-            line-height: 1.3;
-            margin-bottom: 20px;
-            background: linear-gradient(135deg, #fff 30%, #aaa);
-            -webkit-background-clip: text; background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .hero p { font-size: 1.3rem; color: var(--dim); margin-bottom: 40px; }
-        .btn-hero {
-            display: inline-block;
-            padding: 16px 50px;
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            color: #fff; font-weight: 800; font-size: 1.3rem;
-            text-decoration: none; border-radius: 50px;
-            transition: 0.3s;
-            box-shadow: 0 10px 30px rgba(63,94,251,0.4);
-        }
-        .btn-hero:hover { transform: scale(1.05); box-shadow: 0 15px 40px rgba(252,70,107,0.5); }
-
         /* Matches Container */
         .section-title {
             text-align: center;
-            padding: 50px 20px 20px;
+            padding: 40px 20px 20px;
         }
         .section-title h2 { font-size: 2rem; color: #fff; margin-bottom: 8px; }
         .section-title i { color: var(--secondary); margin-left:10px; }
@@ -96,6 +71,7 @@
             cursor: pointer;
             text-decoration: none;
             color: inherit;
+            position: relative;
         }
         .match-card:hover {
             background: rgba(255,255,255,0.1);
@@ -132,7 +108,6 @@
         }
 
         @media (max-width: 700px) {
-            .hero h1 { font-size: 2.2rem; }
             .match-card { flex-direction: column; gap: 12px; text-align: center; }
         }
     </style>
@@ -151,12 +126,6 @@
     </div>
 </nav>
 
-<div class="hero">
-    <h1>عالم البث المباشر بين يديك</h1>
-    <p>تابع أحدث المباريات وشاهد قنواتك المفضل بجودة عالية</p>
-    <a href="channels.html" class="btn-hero"><i class="fas fa-play"></i> شاهد الآن</a>
-</div>
-
 <div class="section-title">
     <h2><i class="fas fa-futbol"></i> مباريات اليوم</h2>
     <button class="refresh-btn" onclick="loadMatches()" style="background:none; border:none; color:var(--dim); cursor:pointer; font-size:0.8rem; margin-top:5px;"><i class="fas fa-sync"></i> تحديث الجدول</button>
@@ -169,24 +138,6 @@
 </footer>
 
 <script>
-    function getTodayDate() {
-        var d = new Date();
-        var mm = String(d.getMonth() + 1).padStart(2, '0');
-        var dd = String(d.getDate()).padStart(2, '0');
-        return d.getFullYear() + '-' + mm + '-' + dd;
-    }
-
-    function formatTime(dateStr, timeStr) {
-        if (!timeStr) return '';
-        try {
-            // API returns UTC time, convert to local
-            var dt = new Date(dateStr + 'T' + timeStr + 'Z');
-            return dt.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', hour12: true });
-        } catch(e) {
-            return timeStr.slice(0, 5);
-        }
-    }
-
     function getStatusBadge(status) {
         if (!status) return '<div class="match-channel">مجدول</div>';
         var s = status.toLowerCase();
@@ -200,71 +151,75 @@
 
     function loadMatches() {
         var container = document.getElementById('matchesList');
-        container.innerHTML = '<div class="loading"><div class="spinner"></div><p>جاري تحميل المباريات...</p></div>';
+        var customMatches = JSON.parse(localStorage.getItem('customMatches')) || [];
 
-        var today = getTodayDate();
-        var apiUrl = 'https://www.thesportsdb.com/api/v1/json/123/eventsday.php?d=' + today + '&s=Soccer';
+        if (customMatches.length === 0) {
+            container.innerHTML = '<div class="loading"><i class="fas fa-moon" style="font-size:3rem; color:#555; display:block; margin-bottom:15px;"></i><p>لا توجد مباريات مضافة حالياً</p></div>';
+            return;
+        }
 
-        fetch(apiUrl)
-            .then(function(res) {
-                if (!res.ok) throw new Error('HTTP ' + res.status);
-                return res.json();
-            })
-            .then(function(data) {
-                renderMatches(data.events || []);
-            })
-            .catch(function(err) {
-                console.error('Error fetching matches:', err);
-                container.innerHTML = '<div class="loading"><i class="fas fa-exclamation-circle" style="font-size:2.5rem; color:var(--secondary); margin-bottom:15px; display:block;"></i><p>تعذر جلب المباريات</p><button onclick="loadMatches()" style="margin-top:15px; padding:10px 25px; background:var(--secondary); color:#fff; border:none; border-radius:25px; cursor:pointer; font-family:Cairo,sans-serif; font-size:1rem;">إعادة المحاولة</button></div>';
-            });
+        var mappedMatches = customMatches.map(function(m) {
+            return {
+                idEvent: m.id,
+                strTitle: m.title,
+                strHomeTeam: m.home,
+                strAwayTeam: m.away,
+                strHomeTeamBadge: m.homeBadge,
+                strAwayTeamBadge: m.awayBadge,
+                strTime: m.time,
+                strLeague: m.league,
+                leagueBadge: m.leagueBadge,
+                customLink: 'match.html?id=' + m.id,
+                isCustom: true
+            };
+        });
+
+        // Sort by time
+        mappedMatches.sort(function(a, b) {
+            return (a.strTime || '').localeCompare(b.strTime || '');
+        });
+
+        renderMatches(mappedMatches);
     }
 
     function renderMatches(events) {
         var container = document.getElementById('matchesList');
-
-        if (!events || events.length === 0) {
-            container.innerHTML = '<div class="loading"><i class="fas fa-moon" style="font-size:3rem; color:#555; display:block; margin-bottom:15px;"></i><p>لا توجد مباريات كروية مجدولة اليوم</p></div>';
-            return;
-        }
-
-        // Sort by time
-        events.sort(function(a, b) {
-            return (a.strTime || '').localeCompare(b.strTime || '');
-        });
 
         var html = '';
         events.forEach(function(ev) {
             var home = ev.strHomeTeam || '';
             var away = ev.strAwayTeam || '';
             var league = ev.strLeague || '';
-            var time = formatTime(ev.strDate || getTodayDate(), ev.strTime);
-            var scoreHome = ev.intHomeScore;
-            var scoreAway = ev.intAwayScore;
-            var hasScore = (scoreHome !== null && scoreHome !== undefined && scoreHome !== '');
+            var time = ev.strTime;
             var badge = getStatusBadge(ev.strStatus);
-            var homeBadge = ev.strHomeTeamBadge ? '<img src="' + ev.strHomeTeamBadge + '/tiny" onerror="this.style.display=\'none\'" style="width:28px;height:28px;object-fit:contain;margin-left:8px;border-radius:4px;" loading="lazy">' : '';
-            var awayBadge = ev.strAwayTeamBadge ? '<img src="' + ev.strAwayTeamBadge + '/tiny" onerror="this.style.display=\'none\'" style="width:28px;height:28px;object-fit:contain;margin-right:8px;border-radius:4px;" loading="lazy">' : '';
-            var tvStation = ev.strTVStation ? ev.strTVStation.trim() : '';
-            var channelDisplay = tvStation ? '<span style="margin-right:15px; color:#aaa;"><i class="fas fa-tv" style="margin-left:4px;"></i>' + tvStation + '</span>' : '';
+            var homeBadgeSrc = ev.strHomeTeamBadge;
+            var awayBadgeSrc = ev.strAwayTeamBadge;
 
-            var vsContent = hasScore
-                ? '<div class="vs-badge">' + scoreHome + ' - ' + scoreAway + '<div style="font-size:0.6rem; opacity:0.8;">' + time + '</div></div>'
-                : '<div class="vs-badge">VS<div style="font-size:0.6rem; opacity:0.8;">' + time + '</div></div>';
+            // Simplified lighting-fast fallback logic
+            var homeFallback = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(home) + '&background=3f5efb&color=fff';
+            var awayFallback = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(away) + '&background=fc466b&color=fff';
+            var homeBadge = '<img src="' + homeBadgeSrc + '" class="match-card-logo" onerror="this.src=\'' + homeFallback + '\';" style="width:36px;height:36px;object-fit:contain;border-radius:50%;margin-left:8px;" loading="lazy">';
+            var awayBadge = '<img src="' + awayBadgeSrc + '" class="match-card-logo" onerror="this.src=\'' + awayFallback + '\';" style="width:36px;height:36px;object-fit:contain;border-radius:50%;margin-right:8px;" loading="lazy">';
 
-            html += '<div class="match-card">' +
-                '<div style="width:100%;">' +
-                    '<div style="font-size:0.75rem; color:var(--secondary); margin-bottom:8px; opacity:0.85; display:flex; flex-wrap:wrap;">' + 
-                        '<span><i class="fas fa-trophy" style="margin-left:5px;"></i>' + league + '</span>' + 
-                        channelDisplay +
+            var vsContent = '<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0 30px;">' +
+                '<div style="font-size:2rem; font-weight:900; color:#fff; letter-spacing:1px; text-shadow: 0 0 15px rgba(255,255,255,0.2);">' + time + '</div>' +
+                '<div style="font-size:0.75rem; font-weight:700; color:var(--secondary); margin-top:5px; text-transform:uppercase;">بتوقيت مكة</div>' +
+            '</div>';
+            var link = ev.customLink;
+
+            html += '<a href="' + link + '" class="match-card">' +
+                '<div style="width:100%; text-align:center;">' +
+                    '<div style="font-size:0.9rem; color:var(--dim); margin-bottom:15px; display:flex; justify-content:center; align-items:center; gap:15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 15px;">' +
+                        '<span style="color:var(--secondary); font-weight:800;"><i class="fas fa-trophy" style="margin-left:5px;"></i>' + league + '</span>' +
                     '</div>' +
-                    '<div class="match-teams">' +
-                        '<div class="team">' + homeBadge + '<span>' + home + '</span></div>' +
+                    '<div class="match-teams" style="justify-content: center; margin-top: 10px;">' +
+                        '<div class="team" style="flex:1; justify-content:flex-end; text-align:left; font-size:1.2rem;"><span>' + home + '</span>' + homeBadge + '</div>' +
                         vsContent +
-                        '<div class="team"><span>' + away + '</span>' + awayBadge + '</div>' +
+                        '<div class="team" style="flex:1; justify-content:flex-start; text-align:right; font-size:1.2rem;">' + awayBadge + '<span>' + away + '</span></div>' +
                     '</div>' +
                 '</div>' +
-                badge +
-            '</div>';
+                '<div style="position:absolute; top:20px; left:25px;">' + badge + '</div>' +
+            '</a>';
         });
 
         container.innerHTML = html;
