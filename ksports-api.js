@@ -37,101 +37,240 @@ window.KSportsAPI = (function() {
 
     // ---- Channel ↔ League Mapping ----
     // Maps channel names to leagues/competitions they typically broadcast
+    // ✅ محدّث لموسم 2025-2026
     const CHANNEL_LEAGUE_MAP = {
-        // --- beIN Sports Network (المقاييس الرسمية كما في موقع كووورة) ---
+        // ═══════════════════════════════════════════════
+        // beIN Sports Network (شبكة بي إن سبورت)
+        // الحقوق: الدوري الإنجليزي، لا ليغا، الدوري الفرنسي،
+        //         أبطال أوروبا، الدوري الأوروبي، دوري المؤتمر،
+        //         أبطال آسيا، أبطال أفريقيا، كأس أمم أفريقيا
+        // ═══════════════════════════════════════════════
         'bein sport 1': {
-            leagues: [39, 2, 3, 45, 48, 848], // Premier League, UCL, UEL, FA Cup, EFL, Conference
-            keywords: ['إنجليزي', 'أبطال أوروبا']
+            leagues: [39, 2, 3, 45, 48, 848, 531], // PL, UCL, UEL, FA Cup, EFL Cup, UECL, UEFA Super Cup
+            keywords: ['إنجليزي', 'أبطال أوروبا', 'بريميير ليغ']
         },
         'bein sport 2': {
-            leagues: [2, 3, 45, 39], // UCL, UEL, FA Cup, PL
-            keywords: ['أبطال أوروبا']
+            leagues: [2, 3, 848, 39, 45], // UCL, UEL, UECL, PL, FA Cup
+            keywords: ['أبطال أوروبا', 'يوروبا ليغ']
         },
         'bein sport 3': {
-            leagues: [140, 3], // La Liga, UEL
-            keywords: ['اسباني', 'لا ليغا']
+            leagues: [140, 143, 144, 3, 848], // La Liga, Copa del Rey, Spanish Super Cup, UEL, UECL
+            keywords: ['اسباني', 'لا ليغا', 'إسباني']
         },
         'bein sport 4': {
-            leagues: [61, 848], // Ligue 1, Conference
-            keywords: ['فرنسي']
+            leagues: [61, 66, 848, 2], // Ligue 1, Coupe de France, UECL, UCL
+            keywords: ['فرنسي', 'ليغ 1']
         },
         'bein sport 5': {
-            leagues: [78], // Bundesliga
-            keywords: ['ألماني']
+            leagues: [2, 3, 61, 140, 848], // UCL, UEL, Ligue 1, La Liga, UECL
+            keywords: ['أوروبي']
         },
         'bein sport 6': {
-            leagues: [218, 114], // AFCON, CAF CL
-            keywords: ['أفريقيا']
+            leagues: [218, 114, 20, 2, 3], // AFCON, CAF CL, CAF Confed Cup, UCL, UEL
+            keywords: ['أفريقيا', 'كاف']
+        },
+        'bein sport 7': {
+            leagues: [39, 2, 3, 140, 61], // PL, UCL, UEL, La Liga, Ligue 1
+            keywords: ['أوروبي']
+        },
+        'bein sport 8': {
+            leagues: [39, 2, 3, 140, 61, 848], // overflow channels
+            keywords: []
+        },
+        'bein sport 9': {
+            leagues: [39, 2, 3, 140, 61, 848], // overflow channels
+            keywords: []
+        },
+        'bein sport premium 1': {
+            leagues: [39, 2, 140], // PL, UCL, La Liga
+            keywords: ['بريميوم', 'إنجليزي']
+        },
+        'bein sport premium 2': {
+            leagues: [39, 2, 140, 61], // PL, UCL, La Liga, Ligue 1
+            keywords: ['بريميوم']
         },
         'bein sport afc': {
-            leagues: [17, 18], // AFC Champions League
-            keywords: ['آسيا']
+            leagues: [17, 18, 480], // AFC Champions League Elite, AFC Cup, AFC Qualifiers
+            keywords: ['آسيا', 'أبطال آسيا']
         },
-        // --- SSC Network (السعودية) ---
-        'ssc sport 1': {
-            leagues: [307, 853, 17, 18], // Saudi Pro League, King Cup, AFC
-            keywords: ['سعودي', 'روشن', 'آسيا']
+        'bein sport xtra 1': {
+            leagues: [39, 2, 3, 140, 61], // Extra overflow
+            keywords: ['إكسترا']
         },
-        'ssc sport extra 1': {
-            leagues: [307, 853],
-            keywords: ['سعودي', 'روشن']
+        // ═══════════════════════════════════════════════
+        // Thmanyah (ثمانية) - خلفاً لـ SSC المُغلقة أكتوبر 2025
+        // الحقوق: دوري روشن السعودي، كأس الملك، السوبر السعودي،
+        //         دوري يلو (الدرجة الأولى) - حتى 2031
+        // ═══════════════════════════════════════════════
+        'thmanyah 1': {
+            leagues: [307, 853, 855], // Saudi Pro League (Roshn), King Cup, Saudi Super Cup
+            keywords: ['سعودي', 'روشن', 'ثمانية']
         },
-        // --- AD Sports / Abu Dhabi ---
+        'thmanyah 2': {
+            leagues: [307, 853, 308], // Saudi Pro League, King Cup, Yelo League
+            keywords: ['سعودي', 'روشن', 'يلو']
+        },
+        'thmanyah 3': {
+            leagues: [307, 308, 853], // Saudi leagues overflow
+            keywords: ['سعودي']
+        },
+        // ═══════════════════════════════════════════════
+        // MBC Action / Shahid (ام بي سي أكشن / شاهد)
+        // الحقوق: الدوري الألماني (بوندسليغا) - حتى 2028
+        // 3 مباريات أسبوعياً على MBC Action مجاناً
+        // كل المباريات على منصة شاهد
+        // ═══════════════════════════════════════════════
+        'mbc action': {
+            leagues: [78, 79], // Bundesliga, 2. Bundesliga
+            keywords: ['ألماني', 'بوندسليغا', 'ام بي سي']
+        },
+        'shahid': {
+            leagues: [78, 79], // Bundesliga, 2. Bundesliga
+            keywords: ['ألماني', 'بوندسليغا', 'شاهد']
+        },
+        // ═══════════════════════════════════════════════
+        // STARZPLAY (ستارزبلاي)
+        // الحقوق: الدوري الإيطالي (سيري آ) - حتى 2028
+        // ═══════════════════════════════════════════════
+        'starzplay': {
+            leagues: [135, 137, 547], // Serie A, Coppa Italia, Supercoppa Italiana
+            keywords: ['إيطالي', 'سيري آ', 'ستارز']
+        },
+        // ═══════════════════════════════════════════════
+        // AD Sports / Abu Dhabi Sports (أبوظبي الرياضية)
+        // الحقوق: دوري أدنوك الإماراتي
+        // ═══════════════════════════════════════════════
         'abu dhabi sports 1': {
-            leagues: [403, 137], // UAE Pro League, Coppa Italia
-            keywords: ['إماراتي', 'ايطاليا']
+            leagues: [403, 404], // UAE ADNOC Pro League, UAE Cup
+            keywords: ['إماراتي', 'أبوظبي', 'أدنوك']
         },
-        // --- OnTime Sports (مصر) ---
+        'abu dhabi sports 2': {
+            leagues: [403, 404], // UAE Pro League, UAE Cup
+            keywords: ['إماراتي', 'أبوظبي']
+        },
+        // ═══════════════════════════════════════════════
+        // Dubai Sports (دبي الرياضية)
+        // الحقوق: دوري أدنوك الإماراتي (مشاركة)
+        // ═══════════════════════════════════════════════
+        'dubai sports 1': {
+            leagues: [403], // UAE ADNOC Pro League
+            keywords: ['إماراتي', 'دبي']
+        },
+        'dubai sports 2': {
+            leagues: [403], // UAE ADNOC Pro League
+            keywords: ['إماراتي', 'دبي']
+        },
+        // ═══════════════════════════════════════════════
+        // OnTime Sports (أون تايم سبورتس - مصر)
+        // الحقوق: الدوري المصري الممتاز
+        // ═══════════════════════════════════════════════
         'ontime sports 1': {
-            leagues: [233], // Egyptian Premier League
+            leagues: [233, 234], // Egyptian Premier League, Egyptian Cup
             keywords: ['مصري', 'مصر']
         },
-        // --- Alkass (الكأس قطر) ---
-        'alkass 1': {
-            leagues: [153, 17], // Qatar Stars League, AFC
-            keywords: ['قطري', 'كأس']
+        'ontime sports 2': {
+            leagues: [233, 234], // Egyptian Premier League, Egyptian Cup
+            keywords: ['مصري', 'مصر']
         },
-        // --- Arryadia (الرياضية المغربية) ---
+        // ═══════════════════════════════════════════════
+        // Alkass (الكأس - قطر)
+        // الحقوق: دوري نجوم قطر
+        // ═══════════════════════════════════════════════
+        'alkass 1': {
+            leagues: [153, 154, 17], // Qatar Stars League, Qatar Cup, AFC CL
+            keywords: ['قطري', 'الكأس']
+        },
+        'alkass 2': {
+            leagues: [153, 154], // Qatar Stars League, Qatar Cup
+            keywords: ['قطري', 'الكأس']
+        },
+        // ═══════════════════════════════════════════════
+        // Arryadia (الرياضية المغربية) - SNRT
+        // الحقوق: البطولة الاحترافية (بوتولا برو)
+        // ═══════════════════════════════════════════════
         'arryadia': {
-            leagues: [200, 114], // Botola Pro, CAF CL
+            leagues: [200, 201, 114, 20], // Botola Pro, Botola 2, CAF CL, CAF Confed Cup
+            keywords: ['مغربي', 'المغربية', 'بوتولا']
+        },
+        'arryadia hd': {
+            leagues: [200, 201, 114], // Botola Pro, Botola 2, CAF CL
             keywords: ['مغربي', 'المغربية']
         },
-        // General/Fallback
+        // ═══════════════════════════════════════════════
+        // Sharjah Sports (الشارقة الرياضية)
+        // الحقوق: دوري أدنوك الإماراتي (مشاركة)
+        // ═══════════════════════════════════════════════
+        'sharjah sports': {
+            leagues: [403], // UAE ADNOC Pro League
+            keywords: ['إماراتي', 'الشارقة']
+        },
+        // General/Fallback (بطولات رئيسية مشهورة)
         '_default': {
-            leagues: [39, 140, 135, 78, 61, 2, 3, 307],
+            leagues: [39, 140, 61, 2, 3, 848, 307, 78, 135, 17],
             keywords: []
         }
     };
 
     // ---- League ID → Arabic Name Map ----
+    // ✅ محدّث لموسم 2025-2026
     const LEAGUE_NAMES = {
+        1: 'كأس العالم FIFA',
         2: 'دوري أبطال أوروبا',
-        3: 'الدوري الأوروبي',
-        4: 'بطولة أمم أوروبا',
-        17: 'دوري أبطال آسيا',
+        3: 'الدوري الأوروبي (يوروبا ليغ)',
+        4: 'بطولة أمم أوروبا (يورو)',
+        5: 'دوري الأمم الأوروبية',
+        6: 'تصفيات كأس العالم - أفريقيا',
+        10: 'تصفيات كأس العالم - آسيا',
+        15: 'كأس آسيا',
+        17: 'دوري أبطال آسيا النخبة',
         18: 'كأس الاتحاد الآسيوي',
+        20: 'كأس الكونفدرالية الأفريقية',
+        29: 'كأس العالم للأندية',
         39: 'الدوري الإنجليزي الممتاز',
+        40: 'دوري الدرجة الأولى الإنجليزي (تشامبيونشيب)',
         45: 'كأس الاتحاد الإنجليزي',
-        48: 'كأس رابطة الأندية الإنجليزية',
-        61: 'الدوري الفرنسي',
-        78: 'الدوري الألماني',
-        88: 'الدوري الهولندي',
+        48: 'كأس رابطة الأندية الإنجليزية (كاراباو)',
+        61: 'الدوري الفرنسي (ليغ 1)',
+        65: 'كأس فرنسا',
+        66: 'كأس الرابطة الفرنسية',
+        78: 'الدوري الألماني (بوندسليغا)',
+        79: 'دوري الدرجة الثانية الألماني',
+        81: 'كأس ألمانيا (DFB Pokal)',
+        88: 'الدوري الهولندي (إيريديفيزي)',
         94: 'الدوري البرتغالي',
         114: 'دوري أبطال أفريقيا',
-        135: 'الدوري الإيطالي',
-        137: 'كأس إيطاليا',
-        140: 'الدوري الإسباني',
-        144: 'كأس ملك إسبانيا',
+        135: 'الدوري الإيطالي (سيري آ)',
+        137: 'كأس إيطاليا (كوبا إيطاليا)',
+        140: 'الدوري الإسباني (لا ليغا)',
+        143: 'كأس ملك إسبانيا (كوبا ديل ري)',
+        144: 'كأس السوبر الإسباني',
         153: 'دوري نجوم قطر',
-        169: 'الدوري البرازيلي',
-        200: 'الدوري المغربي (البطولة)',
-        218: 'كأس أمم أفريقيا',
-        233: 'الدوري المصري',
+        154: 'كأس أمير قطر',
+        169: 'الدوري البرازيلي (سيري آ)',
+        172: 'كأس البرازيل',
+        179: 'الدوري الأرجنتيني',
+        188: 'الدوري التركي (سوبر ليغ)',
+        197: 'كأس ليبرتادوريس',
+        200: 'الدوري المغربي (بوتولا برو)',
+        201: 'الدوري المغربي الدرجة الثانية',
+        218: 'كأس أمم أفريقيا (كان)',
+        233: 'الدوري المصري الممتاز',
+        234: 'كأس مصر',
+        239: 'الدوري الجزائري',
+        241: 'الدوري التونسي',
+        253: 'الدوري الأمريكي (MLS)',
         307: 'دوري روشن السعودي',
-        403: 'دوري أبوظبي',
+        308: 'دوري يلو السعودي (الدرجة الأولى)',
+        357: 'الدوري الكويتي',
+        383: 'الدوري البحريني',
+        403: 'دوري أدنوك للمحترفين (الإماراتي)',
+        404: 'كأس رئيس الدولة الإماراتي',
+        480: 'تصفيات كأس آسيا',
         531: 'كأس السوبر الأوروبي',
+        547: 'كأس السوبر الإيطالي',
         848: 'دوري المؤتمر الأوروبي',
-        853: 'كأس الملك السعودي'
+        853: 'كأس الملك السعودي',
+        855: 'كأس السوبر السعودي'
     };
 
     // ---- State ----
@@ -189,25 +328,49 @@ window.KSportsAPI = (function() {
             if (isPremium && c.indexOf('premium') === -1 && c.indexOf('بريميوم') === -1) return false;
             return true;
         }
-        else if (m.indexOf('ssc') !== -1) {
+        else if (m.indexOf('thmanyah') !== -1) {
             var numMatch = m.match(/\d+/);
             var num = numMatch ? numMatch[0] : '';
-            if (c.indexOf('ssc') === -1) return false;
+            if (c.indexOf('thmanyah') === -1 && c.indexOf('ثمانية') === -1 && c.indexOf('tmanyah') === -1) return false;
             if (num) {
                 var numRegex = new RegExp('(^|\\D)' + num + '(\\D|$)');
                 if (!numRegex.test(c)) return false;
             }
             return true;
         }
+        else if (m.indexOf('mbc') !== -1) {
+            if (c.indexOf('mbc') === -1 && c.indexOf('ام بي سي') === -1) return false;
+            if (m.indexOf('action') !== -1 && c.indexOf('action') === -1 && c.indexOf('أكشن') === -1) return false;
+            return true;
+        }
+        else if (m.indexOf('shahid') !== -1) {
+            return c.indexOf('shahid') !== -1 || c.indexOf('شاهد') !== -1;
+        }
+        else if (m.indexOf('starzplay') !== -1) {
+            return c.indexOf('starzplay') !== -1 || c.indexOf('starz') !== -1 || c.indexOf('ستارز') !== -1;
+        }
         else if (m.indexOf('abu dhabi') !== -1) {
             var numMatch = m.match(/\d+/);
             var num = numMatch ? numMatch[0] : '';
-            if (c.indexOf('abu dhabi') === -1 && c.indexOf('ابوظبي') === -1 && c.indexOf('أبوظبي') === -1) return false;
+            if (c.indexOf('abu dhabi') === -1 && c.indexOf('ابوظبي') === -1 && c.indexOf('أبوظبي') === -1 && c.indexOf('ad sports') === -1) return false;
             if (num) {
                 var numRegex = new RegExp('(^|\\D)' + num + '(\\D|$)');
                 if (!numRegex.test(c)) return false;
             }
             return true;
+        }
+        else if (m.indexOf('dubai') !== -1) {
+            var numMatch = m.match(/\d+/);
+            var num = numMatch ? numMatch[0] : '';
+            if (c.indexOf('dubai') === -1 && c.indexOf('دبي') === -1) return false;
+            if (num) {
+                var numRegex = new RegExp('(^|\\D)' + num + '(\\D|$)');
+                if (!numRegex.test(c)) return false;
+            }
+            return true;
+        }
+        else if (m.indexOf('sharjah') !== -1) {
+            return c.indexOf('sharjah') !== -1 || c.indexOf('الشارقة') !== -1;
         }
 
         return c.indexOf(m) !== -1;
