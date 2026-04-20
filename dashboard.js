@@ -111,10 +111,18 @@ document.addEventListener('DOMContentLoaded', () => {
             storedMatches.forEach((match, index) => {
                 const item = document.createElement('div');
                 item.className = 'channel-list-item';
+                const apiBadge = match.isAutoImported
+                    ? '<span style="padding:2px 8px;border-radius:4px;font-size:0.7rem;font-weight:700;background:rgba(0,236,188,0.15);color:#00ecbc;margin-right:6px;"><i class="fas fa-cloud-download-alt"></i> API</span>'
+                    : '<span style="padding:2px 8px;border-radius:4px;font-size:0.7rem;font-weight:700;background:rgba(63,94,251,0.15);color:#3f5efb;margin-right:6px;"><i class="fas fa-hand-paper"></i> يدوي</span>';
+                const channelBadge = match.channelName
+                    ? '<span style="font-size:0.7rem;color:var(--text-dim);background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:3px;"><i class="fas fa-tv"></i> ' + match.channelName + '</span>'
+                    : '';
                 item.innerHTML = `
                     <div style="display:flex;align-items:center;gap:10px;flex:1;">
                         <img src="${match.homeBadge}" style="width:28px;height:28px;object-fit:contain;border-radius:4px;" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(match.home)}&background=3f5efb&color=fff'">
+                        ${apiBadge}
                         <span>${match.title} (${match.league})</span>
+                        ${channelBadge}
                     </div>
                     <div style="display:flex; gap:10px;">
                         <button class="btn-primary" style="padding:5px 15px; margin:0;" onclick="editMatch(${index})"><i class="fas fa-edit"></i> تعديل</button>
@@ -125,6 +133,8 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
+    // Make globally accessible for KSportsAPI integration
+    window.loadMatchesAdmin = loadMatchesAdmin;
 
     window.currentEditMatchIndex = -1;
 

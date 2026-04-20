@@ -4,14 +4,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KOORA LIVE - كورة لايف | بث مباشر للمباريات</title>
-    <link rel="icon" href="/logo.png" type="image/png">
+    <title>koora live - كورة لايف</title>
+    <link rel="icon" href="https://koora-live.vercel.app/logo.png" type="image/png" sizes="512x512">
+    <link rel="apple-touch-icon" href="https://koora-live.vercel.app/logo.png" sizes="180x180">
+    <link rel="shortcut icon" href="https://koora-live.vercel.app/logo.png" type="image/x-icon">
+    <link rel="manifest" href="/manifest.json">
     <meta name="description" content="مشاهدة البث المباشر لأهم المباريات مجانا وبدون تقطيع على كورة لايف KOORA LIVE. تغطية حصرية لجميع البطولات والدوريات.">
     <meta name="keywords" content="بث مباشر, مباريات اليوم, كورة لايف, koora live, يلا شوت, مشاهدة مباريات, بث مباشر للمباريات">
     <meta name="author" content="KOORA LIVE">
     <!-- Open Graph tags for match page -->
     <meta property="og:type" content="article">
-    <meta property="og:title" id="ogTitle" content="KOORA LIVE - كورة لايف | بث مباشر للمباريات">
+    <meta property="og:title" id="ogTitle" content="koora live - كورة لايف">
     <meta property="og:description" id="ogDesc" content="مشاهدة البث المباشر لأهم المباريات مجانا وبدون تقطيع على كورة لايف KOORA LIVE.">
     <meta property="og:image" id="ogImage" content="https://koora-live.vercel.app/logo.png">
     <meta name="theme-color" content="#0b091f">
@@ -51,7 +54,7 @@
     <nav class="navbar">
         <div class="container">
             <a href="/" class="logo" style="display:flex; align-items:center; gap:10px; text-decoration:none;">
-                <img src="/logo.png" alt="KOORA LIVE" style="height: 45px; border-radius: 8px; box-shadow: 0 0 15px rgba(63, 94, 251, 0.4);">
+                <img src="/logo.png" alt="koora live - كورة لايف" style="height: 45px; border-radius: 8px; box-shadow: 0 0 15px rgba(63, 94, 251, 0.4);">
                 <span style="font-weight: 800; color: #fff; font-size: 1.5rem; letter-spacing: 1px;">KOORA<span style="color: #fc466b;">LIVE</span></span>
             </a>
             <div class="nav-links">
@@ -87,16 +90,23 @@
     </main>
 
     <footer class="footer">
-        <p>© 2026 جميع الحقوق محفوظة لـ KOORA LIVE</p>
+        <p>© 2026 جميع الحقوق محفوظة لـ koora live - كورة لايف</p>
     </footer>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="ksports-api.js"></script>
     <script src="teams-db.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const matchId = urlParams.get('id');
-            const storedMatches = JSON.parse(localStorage.getItem('customMatches')) || [];
-            const match = storedMatches.find(m => m.id == matchId);
+
+            // Load match from Firebase DB (supports auto-imported matches)
+            window.DB.get('customMatches', function(storedMatches) {
+                const match = storedMatches.find(m => m.id == matchId);
 
             if (!match) {
                 document.getElementById('matchContent').innerHTML = '<div style="text-align:center; padding:50px;"><h2>المباراة غير موجودة</h2><a href="/" class="btn-primary" style="display:inline-block; width:auto; margin-top:20px;">العودة للرئيسية</a></div>';
@@ -127,20 +137,48 @@
             match.keywords = generateKeywords(match.home, match.away, match.league);
 
             // SEO Dynamic Headers
-            document.title = match.title;
-            const metaDesc = document.createElement('meta');
-            metaDesc.name = "description";
-            metaDesc.content = match.description.substring(0, 160);
-            document.head.appendChild(metaDesc);
+            const siteName = "koora live";
+            document.title = `${match.title} | ${siteName}`;
             
-            const metaKeys = document.createElement('meta');
-            metaKeys.name = "keywords";
-            metaKeys.content = match.keywords;
-            document.head.appendChild(metaKeys);
+            // Dynamic Meta tags
+            const updateMeta = (name, content, attr='name') => {
+                let el = document.querySelector(`meta[${attr}="${name}"]`);
+                if (!el) {
+                    el = document.createElement('meta');
+                    el.setAttribute(attr, name);
+                    document.head.appendChild(el);
+                }
+                el.content = content;
+            };
 
-            let iframeCode = match.iframe;
-            if (!iframeCode.startsWith('<iframe') && iframeCode.startsWith('http')) {
+            updateMeta("description", match.description.substring(0, 160));
+            updateMeta("keywords", match.keywords);
+            updateMeta("og:title", match.title, "property");
+            updateMeta("og:description", match.description.substring(0, 160), "property");
+            updateMeta("og:site_name", siteName, "property");
+            
+            // Dynamic JSON-LD for SportsEvent
+            const schemaData = {
+                "@context": "https://schema.org",
+                "@type": "SportsEvent",
+                "name": match.title,
+                "homeTeam": { "@type": "SportsTeam", "name": match.home, "logo": match.homeBadge },
+                "awayTeam": { "@type": "SportsTeam", "name": match.away, "logo": match.awayBadge },
+                "sport": "Soccer",
+                "description": match.description.substring(0, 200),
+                "location": { "@type": "Place", "name": "BTV Channel" }
+            };
+            const script = document.createElement('script');
+            script.type = "application/ld+json";
+            script.text = JSON.stringify(schemaData);
+            document.head.appendChild(script);
+
+            let iframeCode = match.iframe || '';
+            if (iframeCode && !iframeCode.startsWith('<iframe') && iframeCode.startsWith('http')) {
                 iframeCode = `<iframe src="${iframeCode}" allowfullscreen></iframe>`;
+            }
+            if (!iframeCode) {
+                iframeCode = '<div style="display:flex; align-items:center; justify-content:center; height:100%; position:absolute; top:0; left:0; width:100%; background:rgba(0,0,0,0.9); color:#a0a0a0; font-size:1.2rem; flex-direction:column; gap:15px;"><i class="fas fa-satellite-dish" style="font-size:3rem; color:#fc466b;"></i><span>سيتم إضافة رابط البث قبل بداية المباراة</span></div>';
             }
 
             const getFallback = (name) => `onerror="this.src='https://logo.clearbit.com/${name.toLowerCase().replace(/ /g,'')}.com?size=150'; this.onerror=function(){this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&size=200';};"`;
@@ -148,9 +186,9 @@
             const html = `
                 <div class="match-header">
                     <div class="teams-logos">
-                        <img src="${match.homeBadge}" class="team-logo-large" ${getFallback(match.home)}>
+                        <img src="${match.homeBadge}" class="team-logo-large" alt="${match.home}" ${getFallback(match.home)}>
                         <div class="vs-text">VS</div>
-                        <img src="${match.awayBadge}" class="team-logo-large" ${getFallback(match.away)}>
+                        <img src="${match.awayBadge}" class="team-logo-large" alt="${match.away}" ${getFallback(match.away)}>
                     </div>
                     <h1 class="match-title">${match.title}</h1>
                     <div class="match-info">
@@ -179,6 +217,7 @@
                 </div>
             `;
             document.getElementById('matchContent').innerHTML = html;
+            }); // End DB.get callback
         });
     </script>
 </body>

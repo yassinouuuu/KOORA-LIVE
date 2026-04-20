@@ -5,35 +5,64 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google-site-verification" content="9yrfjgKJ8uY0LiWePJRkR539GCOTLf2HucS7hCINfYk" />
-    <title>KOORA LIVE - كورة لايف | بث مباشر للمباريات يلا شوت بدون تقطيع</title>
-    <link rel="icon" href="/logo.png" type="image/png">
+    <title>koora live - كورة لايف</title>
+    <link rel="icon" href="https://koora-live.vercel.app/logo.png" type="image/png" sizes="512x512">
+    <link rel="apple-touch-icon" href="https://koora-live.vercel.app/logo.png" sizes="180x180">
+    <link rel="shortcut icon" href="https://koora-live.vercel.app/logo.png" type="image/x-icon">
+    <link rel="manifest" href="/manifest.json">
     <meta name="description" content="كورة لايف KOORA LIVE موقع رياضي يغطي أهم مباريات اليوم بث مباشر بدون تقطيع يلا شوت، تابع أهداف وملخصات مباريات كرة القدم المحلية والعالمية عبر كورة لايف.">
     <meta name="keywords" content="كورة لايف, koora live, يلا شوت, yalla shoot, كورة اون لاين, مباريات اليوم, بث مباشر, كورة 365, يلا كورة, مباراة الاهلي, ريال مدريد, دوري ابطال اوروبا, مشاهدة مباريات">
     <meta name="author" content="KOORA LIVE">
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://koora-live.vercel.app/">
-    <meta property="og:title" content="KOORA LIVE - كورة لايف | بث مباشر للمباريات يلا شوت بدون تقطيع">
+    <meta property="og:title" content="koora live - كورة لايف">
     <meta property="og:description" content="كورة لايف KOORA LIVE موقع رياضي يغطي أهم مباريات اليوم بث مباشر بدون تقطيع يلا شوت، تابع أهداف وملخصات مباريات كرة القدم المحلية والعالمية عبر كورة لايف.">
     <meta property="og:image" content="https://koora-live.vercel.app/logo.png">
+    <meta property="og:site_name" content="koora live">
+    <meta property="og:locale" content="ar_AR">
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://koora-live.vercel.app/">
-    <meta property="twitter:title" content="KOORA LIVE - كورة لايف | بث مباشر للمباريات يلا شوت بدون تقطيع">
+    <meta property="twitter:title" content="koora live - كورة لايف">
     <meta property="twitter:description" content="كورة لايف KOORA LIVE موقع رياضي يغطي أهم مباريات اليوم بث مباشر بدون تقطيع يلا شوت، تابع أهداف وملخصات مباريات كرة القدم المحلية والعالمية عبر كورة لايف.">
     <meta property="twitter:image" content="https://koora-live.vercel.app/logo.png">
     <meta name="theme-color" content="#0b091f">
     <link rel="canonical" href="https://koora-live.vercel.app/">
     <!-- Structured Data JSON-LD -->
     <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "SportsOrganization",
-      "name": "KOORA LIVE",
-      "url": "https://koora-live.vercel.app/",
-      "logo": "https://koora-live.vercel.app/logo.png",
-      "sameAs": []
-    }
+    [
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "KOORA LIVE",
+        "alternateName": "كورة لايف",
+        "url": "https://koora-live.vercel.app/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://koora-live.vercel.app/logo.png",
+          "width": 512,
+          "height": 512
+        },
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "contactType": "customer support",
+          "email": "contact@koora-live.com"
+        }
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "koora live",
+        "alternateName": "كورة لايف",
+        "url": "https://koora-live.vercel.app/",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://koora-live.vercel.app/?s={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      }
+    ]
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -42,6 +71,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
     <script src="firebase-config.js"></script>
+    <script src="ksports-api.js"></script>
     <style>
         :root {
             --primary: #3f5efb;
@@ -153,7 +183,7 @@
 
 <nav>
     <a href="/" class="logo" style="display:flex; align-items:center; gap:10px; text-decoration:none;">
-        <img src="/logo.png" alt="KOORA LIVE" style="height: 45px; border-radius: 8px; box-shadow: 0 0 15px rgba(63, 94, 251, 0.4);">
+        <img src="/logo.png" alt="koora live - كورة لايف" style="height: 45px; border-radius: 8px; box-shadow: 0 0 15px rgba(63, 94, 251, 0.4);">
         <span style="font-weight: 800; color: #fff; font-size: 1.5rem; letter-spacing: 1px;">KOORA<span style="color: #fc466b;">LIVE</span></span>
     </a>
     <div class="nav-links">
@@ -178,14 +208,17 @@
 </script>
 
 <div class="section-title">
-    <h2><i class="fas fa-futbol"></i> مباريات اليوم</h2>
+    <h1><i class="fas fa-futbol"></i> مباريات اليوم بث مباشر</h1>
     <button class="refresh-btn" onclick="loadMatches()" style="background:none; border:none; color:var(--dim); cursor:pointer; font-size:0.8rem; margin-top:5px;"><i class="fas fa-sync"></i> تحديث الجدول</button>
 </div>
 
 <div class="matches-container" id="matchesList"></div>
 
 <footer>
-    <p>© 2026 جميع الحقوق محفوظة لـ KOORA LIVE</p>
+    <div style="max-width: 900px; margin: 40px auto; padding: 20px; text-align: justify; color: var(--dim); line-height: 1.8; font-size: 0.9rem; background: rgba(255,255,255,0.02); border-radius: 12px;">
+        <p>مرحباً بكم في <strong>koora live (كورة لايف)</strong>، الوجهة الأولى لعشاق كرة القدم لمتابعة <strong>مباريات اليوم بث مباشر</strong>. نحن نوفر لكم تغطية شاملة لكافة الدوريات العالمية والعربية، بما في ذلك الدوري الإنجليزي، الدوري الإسباني، والدوري المصري، متبوعاً بخدمة <strong>يلا شوت (yalla shoot)</strong> الحصرية. استمتع بمشاهدة <strong>مباريات اليوم</strong> بدون تقطيع وبجودة عالية تتناسب مع سرعة الإنترنت لديك. تابع أهداف وملخصات كافة المباريات، وجدول ترتيب الدوريات، وأحدث أخبار سوق الانتقالات عبر موقعنا <strong>كورة لايف اون لاين</strong>.</p>
+    </div>
+    <p>© 2026 جميع الحقوق محفوظة لـ koora live - كورة لايف</p>
 </footer>
 
 <script>
@@ -413,6 +446,8 @@
                     leagueBadge: m.leagueBadge,
                     customLink: '/match?id=' + m.id,
                     isCustom: true,
+                    isAutoImported: m.isAutoImported || false,
+                    channelName: m.channelName || '',
                     liveStatus: m.liveStatus,
                     liveHomeScore: m.liveHomeScore,
                     liveAwayScore: m.liveAwayScore,
@@ -470,6 +505,7 @@
             }
 
             var link = ev.customLink;
+            var channelTag = ev.channelName ? '<div style="font-size:0.75rem; color:var(--accent); margin-top:12px; display:flex; justify-content:center; align-items:center; gap:5px; opacity:0.8;"><i class="fas fa-tv"></i> ' + ev.channelName + '</div>' : '';
 
             html += '<a href="' + link + '" class="match-card">' +
                 '<div style="width:100%; text-align:center;">' +
@@ -481,6 +517,7 @@
                         vsContent +
                         '<div class="team" style="flex:1; justify-content:flex-start; text-align:right; font-size:1.2rem;">' + awayBadge + '<span>' + away + '</span></div>' +
                     '</div>' +
+                    channelTag +
                 '</div>' +
                 '<div style="position:absolute; top:20px; left:25px;">' + badge + '</div>' +
             '</a>';

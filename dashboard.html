@@ -4,9 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة الأدمين - إدارة القنوات</title>
+    <title>koora live - إدارة القنوات</title>
     <link rel="icon" href="/logo.png" type="image/png">
-    <link rel="stylesheet" href="style.css">
+    <link rel="apple-touch-icon" href="/logo.png">
+    <link rel="shortcut icon" href="/logo.png" type="image/x-icon">
+    <link rel="manifest" href="/manifest.json">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
@@ -123,6 +125,89 @@
                 <!-- Matches will list here -->
             </div>
         </div>
+
+        <!-- ===== KSportsAPI Auto-Import Section ===== -->
+        <div class="admin-card" style="border: 1px solid rgba(0, 236, 188, 0.2); background: linear-gradient(135deg, rgba(0,236,188,0.03), rgba(63,94,251,0.03));">
+            <h2 style="display:flex; align-items:center; gap:12px;">
+                <span style="background: linear-gradient(135deg, #00ecbc, #3f5efb); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
+                    <i class="fas fa-satellite-dish" style="-webkit-text-fill-color: #00ecbc;"></i> سحب المباريات التلقائي - KSportsAPI
+                </span>
+            </h2>
+            <p style="color: var(--text-dim); margin-top:8px; margin-bottom:20px; font-size:0.9rem;">
+                <i class="fas fa-info-circle" style="color:#00ecbc;"></i>
+                يتم سحب مباريات اليوم تلقائياً من API-Football وإضافتها حسب القنوات المتوفرة في موقعك
+            </p>
+
+            <!-- API Key Configuration -->
+            <div class="form-group" style="background: rgba(255,255,255,0.02); padding:20px; border-radius:10px; border:1px solid rgba(255,255,255,0.05);">
+                <label style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+                    <i class="fas fa-key" style="color:#ffbb33;"></i> مفتاح API-Football (api-sports.io)
+                </label>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="apiKeyInput" placeholder="ألصق مفتاح الـ API هنا..." style="flex:1;">
+                    <button type="button" id="btnSaveApiKey" class="btn-primary" style="width:auto; padding:10px 25px; margin:0;">
+                        <i class="fas fa-save"></i> حفظ
+                    </button>
+                </div>
+                <div style="margin-top:10px; font-size:0.8rem; color:var(--text-dim);">
+                    <a href="https://www.api-football.com/" target="_blank" style="color:#00ecbc; text-decoration:none;">
+                        <i class="fas fa-external-link-alt"></i> احصل على مفتاح مجاني (100 طلب/يوم)
+                    </a>
+                </div>
+            </div>
+
+            <!-- Status & Stats -->
+            <div id="apiStatusBox" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:12px; margin-top:20px;">
+                <div style="background:rgba(0,236,188,0.08); padding:15px; border-radius:10px; text-align:center;">
+                    <div style="font-size:2rem; font-weight:900; color:#00ecbc;" id="statAutoCount">0</div>
+                    <div style="font-size:0.8rem; color:var(--text-dim);">مباريات مستوردة</div>
+                </div>
+                <div style="background:rgba(63,94,251,0.08); padding:15px; border-radius:10px; text-align:center;">
+                    <div style="font-size:2rem; font-weight:900; color:#3f5efb;" id="statManualCount">0</div>
+                    <div style="font-size:0.8rem; color:var(--text-dim);">مباريات يدوية</div>
+                </div>
+                <div style="background:rgba(252,70,107,0.08); padding:15px; border-radius:10px; text-align:center;">
+                    <div style="font-size:2rem; font-weight:900; color:#fc466b;" id="statChannelCount">0</div>
+                    <div style="font-size:0.8rem; color:var(--text-dim);">قنوات مربوطة</div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:20px;">
+                <button type="button" id="btnPreviewAPI" class="btn-test" style="padding:14px; font-size:1rem; display:flex; align-items:center; justify-content:center; gap:8px;">
+                    <i class="fas fa-eye"></i> معاينة المباريات
+                </button>
+                <button type="button" id="btnAutoImport" class="btn-primary" style="padding:14px; font-size:1rem; display:flex; align-items:center; justify-content:center; gap:8px; background: linear-gradient(45deg, #00ecbc, #3f5efb);">
+                    <i class="fas fa-cloud-download-alt"></i> سحب وإضافة المباريات
+                </button>
+            </div>
+            <div style="margin-top:10px;">
+                <button type="button" id="btnClearAutoImported" class="btn-delete" style="width:100%; padding:10px; font-size:0.9rem;">
+                    <i class="fas fa-eraser"></i> حذف المباريات المستوردة فقط
+                </button>
+            </div>
+
+            <!-- Preview Container -->
+            <div id="apiPreviewContainer" style="display:none; margin-top:20px;">
+                <h3 style="margin-bottom:12px; color:#fff; display:flex; align-items:center; gap:8px;">
+                    <i class="fas fa-list-alt" style="color:#00ecbc;"></i> معاينة المباريات المتاحة
+                </h3>
+                <div id="apiPreviewList" class="channels-manage-list" style="max-height:500px; overflow-y:auto; border:1px solid rgba(255,255,255,0.05); border-radius:10px; padding:10px;">
+                    <!-- Preview will render here -->
+                </div>
+            </div>
+
+            <!-- Channel-League Mapping Info -->
+            <div style="margin-top:20px; background:rgba(255,255,255,0.02); padding:15px; border-radius:10px; border:1px solid rgba(255,255,255,0.03);">
+                <h4 style="margin-bottom:10px; color:#fff; font-size:0.95rem;">
+                    <i class="fas fa-link" style="color:#ffbb33;"></i> خريطة القنوات ↔ الدوريات
+                </h4>
+                <div id="channelMappingInfo" style="font-size:0.85rem; color:var(--text-dim); line-height:1.8;">
+                    <!-- Will be filled dynamically -->
+                </div>
+            </div>
+        </div>
+        <!-- ===== END KSportsAPI Section ===== -->
     </main>
 
     <footer class="footer">
@@ -132,6 +217,8 @@
     </footer>
 
     <script src="teams-db.js"></script>
+    <script src="ksports-api.js"></script>
     <script src="dashboard.js"></script>
+    <script src="dashboard-ksports.js"></script>
 </body>
 </html>
