@@ -38,80 +38,53 @@ window.KSportsAPI = (function() {
     // ---- Channel ↔ League Mapping ----
     // Maps channel names to leagues/competitions they typically broadcast
     const CHANNEL_LEAGUE_MAP = {
-        // beIN Sports channels
+        // beIN Sports channels (User Requested Mappings)
         'bein sport 1': {
-            leagues: [2, 3, 848, 531], // UCL, UEL, UECL, UEFA Super Cup
-            keywords: ['champions', 'europa', 'أبطال أوروبا', 'يوروبا']
+            leagues: [39, 2, 3, 45, 48], // Premier League, UCL, Europa, FA Cup, EFL Cup
+            keywords: ['premier', 'إنجليزي', 'أبطال أوروبا', 'champions']
         },
         'bein sport 2': {
-            leagues: [39, 61], // Premier League, Ligue 1
-            keywords: ['premier', 'بريميرليج', 'الدوري الإنجليزي', 'ligue 1']
+            leagues: [2, 3, 45], // UCL, Europa, FA Cup
+            keywords: ['أبطال أوروبا', 'الاتحاد الإنجليزي']
         },
         'bein sport 3': {
-            leagues: [140, 135], // La Liga, Serie A
-            keywords: ['liga', 'الدوري الإسباني', 'serie a', 'الدوري الإيطالي']
+            leagues: [140, 3], // La Liga, Europa
+            keywords: ['liga', 'اسباني', 'الأوروبي']
         },
         'bein sport 4': {
-            leagues: [78, 88], // Bundesliga, Eredivisie
-            keywords: ['bundesliga', 'الدوري الألماني', 'eredivisie']
+            leagues: [61, 848], // Ligue 1, Conference League
+            keywords: ['فرنسي', 'مؤتمر']
         },
         'bein sport 5': {
-            leagues: [307, 233, 169, 144], // Saudi Pro League, Egyptian, Brazil, Copa del Rey
-            keywords: ['سعودي', 'مصري', 'saudi', 'egyptian', 'copa']
+            leagues: [78], // Bundesliga
+            keywords: ['ألماني']
         },
-        'bein sport 6': {
-            leagues: [253, 200, 4, 6], // MLS, Türkiye, Euro, Nations League
-            keywords: ['mls', 'turkey', 'تركي', 'nations league']
+        'bein sport 8': {
+            leagues: [848], // Conference League
+            keywords: ['مؤتمر', 'conference']
         },
-        'bein sport 7': {
-            leagues: [94, 218, 116], // Primeira Liga, AFCON, India
-            keywords: ['portugal', 'african', 'أفريقيا']
-        },
+        // Premium channels (fallback/extra)
         'bein sport premium 1': {
-            leagues: [2, 3, 39, 140], // UCL, UEL, PL, La Liga - Premium matches
+            leagues: [39, 2, 3, 140],
             keywords: ['premium', 'بريميوم']
         },
         'bein sport premium 2': {
-            leagues: [2, 3, 135, 78], // UCL, UEL, Serie A, Bundesliga
-            keywords: ['premium', 'بريميوم']
-        },
-        'bein sport premium 3': {
-            leagues: [2, 3, 61, 307], // UCL, UEL, Ligue 1, Saudi
+            leagues: [2, 3, 135, 78],
             keywords: ['premium', 'بريميوم']
         },
         // SSC channels (Saudi)
         'ssc sport 1': {
             leagues: [307, 853], // Saudi Pro League, Saudi King Cup
-            keywords: ['سعودي', 'روشن', 'saudi', 'roshn']
-        },
-        'ssc sport 2': {
-            leagues: [307, 853],
-            keywords: ['سعودي', 'روشن']
-        },
-        'ssc sport 3': {
-            leagues: [307, 853],
-            keywords: ['سعودي', 'روشن']
-        },
-        'ssc sport 4': {
-            leagues: [307, 853],
-            keywords: ['سعودي', 'روشن']
-        },
-        'ssc sport 5': {
-            leagues: [307, 853],
             keywords: ['سعودي', 'روشن']
         },
         // AD Sports
         'abu dhabi sports 1': {
-            leagues: [403, 307], // UAE Pro League, Saudi
-            keywords: ['إماراتي', 'uae', 'أبوظبي']
-        },
-        'abu dhabi sports 2': {
-            leagues: [403, 307],
-            keywords: ['إماراتي', 'uae']
+            leagues: [403], // UAE Pro League
+            keywords: ['إماراتي', 'أبوظبي']
         },
         // General/Fallback - all major leagues
         '_default': {
-            leagues: [2, 3, 39, 140, 135, 78, 61, 307, 233],
+            leagues: [39, 140, 135, 78, 61, 2, 3, 307],
             keywords: []
         }
     };
@@ -123,6 +96,8 @@ window.KSportsAPI = (function() {
         4: 'بطولة أمم أوروبا',
         6: 'دوري الأمم الأوروبية',
         39: 'الدوري الإنجليزي الممتاز',
+        45: 'كأس الاتحاد الإنجليزي',
+        48: 'كأس رابطة الأندية الإنجليزية',
         61: 'الدوري الفرنسي',
         78: 'الدوري الألماني',
         88: 'الدوري الهولندي',
