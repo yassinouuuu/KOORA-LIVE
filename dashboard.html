@@ -107,9 +107,17 @@
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label>كود الـ IFRAME أو رابط البث</label>
-                    <textarea id="matchIframe" placeholder="ألصق كود المشغل هنا" required></textarea>
+                <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div>
+                        <label>اختر القناة (تلقائي)</label>
+                        <select id="matchChannelSelect" style="width: 100%; padding: 12px 20px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: white;">
+                            <option value="">-- اختر من قنواتك (اختياري) --</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>كود الـ IFRAME أو رابط البث (يدوي)</label>
+                        <textarea id="matchIframe" placeholder="سيمتلئ تلقائياً عند اختيار القناة، أو الصقه هنا" style="height:50px;" required></textarea>
+                    </div>
                 </div>
 
                 <button type="submit" class="btn-primary">حفظ المباراة <i class="fas fa-save"></i></button>

@@ -95,6 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 storedChannels.splice(index, 1);
                 window.DB.save('channels', storedChannels);
                 loadChannels();
+                if (typeof populateChannelSelects === 'function') populateChannelSelects();
             });
         }
     };
@@ -136,6 +137,38 @@ document.addEventListener('DOMContentLoaded', () => {
     // Make globally accessible for KSportsAPI integration
     window.loadMatchesAdmin = loadMatchesAdmin;
 
+    // --- Channel Auto-Select Logic ---
+    const matchChannelSelect = document.getElementById('matchChannelSelect');
+    
+    function populateChannelSelects() {
+        if (!matchChannelSelect) return;
+        window.DB.get('channels', function(channels) {
+            matchChannelSelect.innerHTML = '<option value="">-- اختر من قنواتك (اختياري) --</option>';
+            if (channels) {
+                channels.forEach(ch => {
+                    const opt = document.createElement('option');
+                    opt.value = ch.name;
+                    opt.textContent = ch.name;
+                    opt.dataset.iframe = ch.iframe;
+                    matchChannelSelect.appendChild(opt);
+                });
+            }
+        });
+    }
+    
+    // Call when page loads and when channels change
+    populateChannelSelects();
+    
+    // Auto-fill iframe when channel is chosen
+    if (matchChannelSelect) {
+        matchChannelSelect.addEventListener('change', function() {
+            const selectedOpt = matchChannelSelect.options[matchChannelSelect.selectedIndex];
+            if (selectedOpt && selectedOpt.dataset.iframe) {
+                document.getElementById('matchIframe').value = selectedOpt.dataset.iframe;
+            }
+        });
+    }
+
     window.currentEditMatchIndex = -1;
 
     window.editMatch = (index) => {
@@ -149,6 +182,12 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('matchLeague').value = m.league || '';
             document.getElementById('matchTime').value = m.time || '';
             document.getElementById('matchIframe').value = m.iframe || '';
+            
+            // Set channel dropdown if exists
+            if (matchChannelSelect) {
+                matchChannelSelect.value = m.channelName || '';
+            }
+
             previewHomeLogo.src = m.homeBadge || '';
             previewAwayLogo.src = m.awayBadge || '';
             window.currentEditMatchIndex = index;
@@ -201,6 +240,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const isEdit = typeof window.currentEditMatchIndex === 'number' && window.currentEditMatchIndex > -1;
             const currentMatchId = isEdit ? storedMatches[window.currentEditMatchIndex].id : Date.now();
+            
+            // Preserve API metadata if editing an API match
+            const prevMatch = isEdit ? storedMatches[window.currentEditMatchIndex] : {};
 
             const newMatch = {
                 id: currentMatchId,
@@ -213,7 +255,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 league: leagueName,
                 description: generateDetailedDescription(homeName, awayName, leagueName),
                 keywords: generateKeywords(homeName, awayName, leagueName),
-                iframe: iframeVal
+                iframe: iframeVal,
+                channelName: (matchChannelSelect && matchChannelSelect.value) ? matchChannelSelect.value : (prevMatch.channelName || ''),
+                isAutoImported: prevMatch.isAutoImported || false,
+                apiFixtureId: prevMatch.apiFixtureId,
+                apiStatus: prevMatch.apiStatus || 'NS'
             };
 
             if (isEdit) {
