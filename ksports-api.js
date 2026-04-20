@@ -727,11 +727,38 @@ window.KSportsAPI = (function() {
         'lebanon': 'لبنان'
     };
 
-    // ---- Helper: Translate team name to Arabic ----
-    function translateTeamName(englishName) {
+    // ---- Helper: Translate team name to Arabic (Dynamic) ----
+    const translationCache = {};
+    async function translateTeamNameAsync(englishName) {
         if (!englishName) return englishName;
-        var key = englishName.toLowerCase().trim();
-        return TEAM_NAMES_AR[key] || englishName;
+        var original = englishName.trim();
+        // Remove FC, CF, United etc. to improve translation
+        var name = original.replace(/^(fc|cf|ac|rc|sc|cd|ud|rcd|sd|us|as|cs|es)\s/i, '')
+                           .replace(/\s(fc|cf|sc|united|city|town|club|rovers|wanderers|athletic|sporting|association)$/i, '')
+                           .trim();
+        
+        var key = name.toLowerCase();
+        var fullKey = original.toLowerCase();
+
+        if (TEAM_NAMES_AR[fullKey]) return TEAM_NAMES_AR[fullKey];
+        if (TEAM_NAMES_AR[key]) return TEAM_NAMES_AR[key];
+        if (translationCache[key]) return translationCache[key];
+
+        // Fallback to Google Translate API (Free)
+        try {
+            var url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ar&dt=t&q=' + encodeURIComponent(name);
+            var response = await fetch(url);
+            var data = await response.json();
+            var arabicName = data[0][0][0];
+            // Remove some common weird transliterations if they occur
+            arabicName = arabicName.replace('نادي ', '').trim();
+            translationCache[key] = arabicName;
+            return arabicName;
+        } catch(e) {
+            console.error('Translation error for', name, e);
+            translationCache[key] = original;
+            return original;
+        }
     }
 
     // ---- State ----
@@ -1049,15 +1076,15 @@ window.KSportsAPI = (function() {
     }
 
     // ---- Convert API fixture to match format ----
-    function fixtureToMatch(fixture, channel) {
+    function fixtureToMatch(fixture, channel, tsHome, tsAway) {
         var home = fixture.teams.home;
         var away = fixture.teams.away;
         var league = fixture.league;
         var time = toMeccaTime(fixture.fixture.date);
         var leagueName = LEAGUE_NAMES[league.id] || league.name;
 
-        var homeName = translateTeamName(home.name);
-        var awayName = translateTeamName(away.name);
+        var homeName = tsHome || home.name;
+        var awayName = tsAway || away.name;
 
         return {
             id: 'api_' + fixture.fixture.id,
@@ -1113,21 +1140,26 @@ window.KSportsAPI = (function() {
                         existingIds[normalizeChannelName(m.home) + '_' + normalizeChannelName(m.away)] = true;
                     });
 
-                    var newMatches = [];
-                    relevantFixtures.forEach(function(fixture) {
-                        // Skip if already imported
-                        if (existingIds[fixture.fixture.id]) return;
-                        
-                        var homeKey = normalizeChannelName(fixture.teams.home.name);
-                        var awayKey = normalizeChannelName(fixture.teams.away.name);
-                        if (existingIds[homeKey + '_' + awayKey]) return;
+                    (async function() {
+                        var newMatches = [];
+                        for (var i = 0; i < relevantFixtures.length; i++) {
+                            var fixture = relevantFixtures[i];
+                            // Skip if already imported
+                            if (existingIds[fixture.fixture.id]) continue;
+                            
+                            var homeKey = normalizeChannelName(fixture.teams.home.name);
+                            var awayKey = normalizeChannelName(fixture.teams.away.name);
+                            if (existingIds[homeKey + '_' + awayKey]) continue;
 
-                        // Find the best matching channel
-                        var bestChannel = getBestChannelForMatch(fixture.league.id, channels);
-                        
-                        var match = fixtureToMatch(fixture, bestChannel);
-                        newMatches.push(match);
-                    });
+                            // Find the best matching channel
+                            var bestChannel = getBestChannelForMatch(fixture.league.id, channels);
+                            
+                            var tsHome = await translateTeamNameAsync(fixture.teams.home.name);
+                            var tsAway = await translateTeamNameAsync(fixture.teams.away.name);
+
+                            var match = fixtureToMatch(fixture, bestChannel, tsHome, tsAway);
+                            newMatches.push(match);
+                        }
 
                     if (newMatches.length > 0) {
                         // Add new matches to existing ones
@@ -1142,6 +1174,7 @@ window.KSportsAPI = (function() {
                         matchedLeagues: leagueIds.length,
                         channels: channels.length
                     });
+                    })();
                 });
             });
         });
