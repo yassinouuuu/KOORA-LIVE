@@ -1223,7 +1223,7 @@ window.KSportsAPI = (function() {
         // Helpers
         getLeaguesForChannels: getLeaguesForChannels,
         getBestChannelForMatch: getBestChannelForMatch,
-        translateTeamName: translateTeamName,
+        translateTeamNameAsync: translateTeamNameAsync,
         
         // Constants
         LEAGUE_NAMES: LEAGUE_NAMES,
