@@ -180,6 +180,48 @@ window.KSportsAPI = (function() {
             .trim();
     }
 
+    function isChannelMatch(mapKey, chName) {
+        if (mapKey === '_default') return false;
+        var c = chName.toLowerCase().replace(/-/g, ' ');
+        var m = mapKey.toLowerCase();
+        
+        if (m.indexOf('bein') !== -1) {
+            var numMatch = m.match(/\d+/);
+            var num = numMatch ? numMatch[0] : '';
+            var isPremium = m.indexOf('premium') !== -1;
+            
+            if (c.indexOf('bein') === -1 && c.indexOf('بين') === -1) return false;
+            if (num) {
+                var numRegex = new RegExp('(^|\\D)' + num + '(\\D|$)');
+                if (!numRegex.test(c)) return false;
+            }
+            if (isPremium && c.indexOf('premium') === -1 && c.indexOf('بريميوم') === -1) return false;
+            return true;
+        }
+        else if (m.indexOf('ssc') !== -1) {
+            var numMatch = m.match(/\d+/);
+            var num = numMatch ? numMatch[0] : '';
+            if (c.indexOf('ssc') === -1) return false;
+            if (num) {
+                var numRegex = new RegExp('(^|\\D)' + num + '(\\D|$)');
+                if (!numRegex.test(c)) return false;
+            }
+            return true;
+        }
+        else if (m.indexOf('abu dhabi') !== -1) {
+            var numMatch = m.match(/\d+/);
+            var num = numMatch ? numMatch[0] : '';
+            if (c.indexOf('abu dhabi') === -1 && c.indexOf('ابوظبي') === -1 && c.indexOf('أبوظبي') === -1) return false;
+            if (num) {
+                var numRegex = new RegExp('(^|\\D)' + num + '(\\D|$)');
+                if (!numRegex.test(c)) return false;
+            }
+            return true;
+        }
+
+        return c.indexOf(m) !== -1;
+    }
+
     // ---- Find matching leagues for site channels ----
     function getLeaguesForChannels(siteChannels) {
         if (!siteChannels || siteChannels.length === 0) {
@@ -196,11 +238,7 @@ window.KSportsAPI = (function() {
             Object.keys(CHANNEL_LEAGUE_MAP).forEach(function(mapKey) {
                 if (mapKey === '_default') return;
                 
-                const mapNorm = normalizeChannelName(mapKey);
-                
-                // Check if channel name contains the map key or vice versa
-                if (normalized.includes(mapNorm) || mapNorm.includes(normalized) ||
-                    normalized.replace(/\s/g, '').includes(mapNorm.replace(/\s/g, '')) ) {
+                if (isChannelMatch(mapKey, ch.name)) {
                     CHANNEL_LEAGUE_MAP[mapKey].leagues.forEach(function(id) {
                         leagueIds.add(id);
                     }); 
@@ -237,16 +275,13 @@ window.KSportsAPI = (function() {
 
         for (var i = 0; i < siteChannels.length; i++) {
             var ch = siteChannels[i];
-            var normalized = normalizeChannelName(ch.name);
             
             var mapKeys = Object.keys(CHANNEL_LEAGUE_MAP);
             for (var j = 0; j < mapKeys.length; j++) {
                 var mapKey = mapKeys[j];
                 if (mapKey === '_default') continue;
                 
-                var mapNorm = normalizeChannelName(mapKey);
-                if (normalized.includes(mapNorm) || mapNorm.includes(normalized) ||
-                    normalized.replace(/\s/g, '').includes(mapNorm.replace(/\s/g, ''))) {
+                if (isChannelMatch(mapKey, ch.name)) {
                     if (CHANNEL_LEAGUE_MAP[mapKey].leagues.indexOf(leagueId) !== -1) {
                         return ch;
                     }
@@ -572,6 +607,7 @@ window.KSportsAPI = (function() {
         // Constants
         LEAGUE_NAMES: LEAGUE_NAMES,
         CHANNEL_LEAGUE_MAP: CHANNEL_LEAGUE_MAP,
-        CONFIG: CONFIG
+        CONFIG: CONFIG,
+        isChannelMatch: isChannelMatch
     };
 })();

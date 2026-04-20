@@ -207,15 +207,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
             var html = '';
             channels.forEach(function(ch) {
-                var normalized = ch.name.toLowerCase().replace(/[^a-z0-9\u0600-\u06FF\s]/g, '').replace(/\s+/g, ' ').trim();
                 var mappedLeagues = [];
 
                 Object.keys(window.KSportsAPI.CHANNEL_LEAGUE_MAP).forEach(function(mapKey) {
                     if (mapKey === '_default') return;
-                    var mapNorm = mapKey.toLowerCase().replace(/[^a-z0-9\u0600-\u06FF\s]/g, '').replace(/\s+/g, ' ').trim();
                     
-                    if (normalized.includes(mapNorm) || mapNorm.includes(normalized) ||
-                        normalized.replace(/\s/g, '').includes(mapNorm.replace(/\s/g, ''))) {
+                    if (window.KSportsAPI.isChannelMatch(mapKey, ch.name)) {
                         window.KSportsAPI.CHANNEL_LEAGUE_MAP[mapKey].leagues.forEach(function(id) {
                             var name = window.KSportsAPI.LEAGUE_NAMES[id];
                             if (name && mappedLeagues.indexOf(name) === -1) {
