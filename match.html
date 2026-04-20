@@ -183,11 +183,29 @@
 
             const getFallback = (name) => `onerror="this.src='https://logo.clearbit.com/${name.toLowerCase().replace(/ /g,'')}.com?size=150'; this.onerror=function(){this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&size=200';};"`;
 
+            let vsContent = "VS";
+            if (match.liveHomeScore !== undefined && match.liveHomeScore !== null && match.liveHomeScore !== '-' &&
+                match.liveAwayScore !== undefined && match.liveAwayScore !== null && match.liveAwayScore !== '-') {
+                let statusLabel = "";
+                let liveStatusLower = (match.liveStatus || '').toLowerCase();
+                if (['in_play', 'live', 'ht', '1h', '2h', 'progress'].includes(liveStatusLower)) {
+                    statusLabel = '<div style="font-size:0.9rem; color:#00ecbc; margin-top:5px; animation: pulse 1.2s infinite;">\uD83D\uDD34 مباشر ' + (match.liveMinute ? match.liveMinute + "'" : '') + '</div>';
+                } else if (['paused', 'half_time'].includes(liveStatusLower)) {
+                    statusLabel = '<div style="font-size:0.9rem; color:#ffbb33; margin-top:5px;">⏸ استراحة</div>';
+                } else if (['finished', 'ft', 'match finished'].includes(liveStatusLower)) {
+                    statusLabel = '<div style="font-size:0.9rem; color:#ff6060; margin-top:5px;">انتهت</div>';
+                }
+                vsContent = `<div style="display:flex;flex-direction:column;align-items:center;line-height:1;">
+                    <div style="font-size:3.5rem; letter-spacing:5px; text-shadow: 0 0 20px rgba(255,255,255,0.3);">${match.liveHomeScore} - ${match.liveAwayScore}</div>
+                    ${statusLabel}
+                </div>`;
+            }
+
             const html = `
                 <div class="match-header">
                     <div class="teams-logos">
                         <img src="${match.homeBadge}" class="team-logo-large" alt="${match.home}" ${getFallback(match.home)}>
-                        <div class="vs-text">VS</div>
+                        <div class="vs-text">${vsContent}</div>
                         <img src="${match.awayBadge}" class="team-logo-large" alt="${match.away}" ${getFallback(match.away)}>
                     </div>
                     <h1 class="match-title">${match.title}</h1>

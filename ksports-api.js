@@ -1061,7 +1061,7 @@ window.KSportsAPI = (function() {
 
         return {
             id: 'api_' + fixture.fixture.id,
-            title: 'بث مباشر مباراة ' + homeName + ' ضد ' + awayName + ' - ' + leagueName,
+            title: '\u0628\u062B \u0645\u0628\u0627\u0634\u0631 \u0645\u0628\u0627\u0631\u0627\u0629 ' + homeName + ' \u0636\u062F ' + awayName + ' - ' + leagueName,
             home: homeName,
             homeBadge: home.logo || window.getFallbackAvatar(homeName),
             away: awayName,
@@ -1071,12 +1071,17 @@ window.KSportsAPI = (function() {
             leagueBadge: league.logo || '',
             iframe: channel ? channel.iframe : '',
             description: '',
-            keywords: homeName + ', ' + awayName + ', ' + home.name + ', ' + away.name + ', ' + leagueName + ', بث مباشر, كورة لايف',
+            keywords: homeName + ', ' + awayName + ', ' + home.name + ', ' + away.name + ', ' + leagueName + ', \u0628\u062B \u0645\u0628\u0627\u0634\u0631, \u0643\u0648\u0631\u0629 \u0644\u0627\u064A\u0641',
             isAutoImported: true,
             apiFixtureId: fixture.fixture.id,
             apiStatus: fixture.fixture.status.short,
             apiLeagueId: league.id,
-            channelName: channel ? channel.name : 'غير محدد'
+            channelName: channel ? channel.name : '\u063A\u064A\u0631 \u0645\u062D\u062F\u062F',
+            // Live Score Data from API
+            liveStatus: fixture.fixture.status.short,
+            liveHomeScore: fixture.goals ? fixture.goals.home : null,
+            liveAwayScore: fixture.goals ? fixture.goals.away : null,
+            liveMinute: fixture.fixture.status.elapsed
         };
     }
 
