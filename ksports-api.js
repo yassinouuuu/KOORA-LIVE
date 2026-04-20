@@ -1223,20 +1223,26 @@ window.KSportsAPI = (function() {
                     return leagueIds.indexOf(f.league.id) !== -1;
                 });
 
-                var previewList = relevantFixtures.map(function(fixture) {
-                    var bestChannel = getBestChannelForMatch(fixture.league.id, channels);
-                    return fixtureToMatch(fixture, bestChannel);
-                });
+                (async function() {
+                    var previewList = [];
+                    for (var i = 0; i < relevantFixtures.length; i++) {
+                        var fixture = relevantFixtures[i];
+                        var bestChannel = getBestChannelForMatch(fixture.league.id, channels);
+                        var tsHome = await translateTeamNameAsync(fixture.teams.home.name);
+                        var tsAway = await translateTeamNameAsync(fixture.teams.away.name);
+                        previewList.push(fixtureToMatch(fixture, bestChannel, tsHome, tsAway));
+                    }
 
-                callback({
-                    success: true,
-                    matches: previewList,
-                    totalFromAPI: fixtures.length,
-                    filteredCount: relevantFixtures.length,
-                    leagues: leagueIds.map(function(id) {
-                        return { id: id, name: LEAGUE_NAMES[id] || 'League #' + id };
-                    })
-                });
+                    callback({
+                        success: true,
+                        matches: previewList,
+                        totalFromAPI: fixtures.length,
+                        filteredCount: relevantFixtures.length,
+                        leagues: leagueIds.map(function(id) {
+                            return { id: id, name: LEAGUE_NAMES[id] || 'League #' + id };
+                        })
+                    });
+                })();
             });
         });
     }
