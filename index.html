@@ -199,9 +199,9 @@
         document.getElementById('adminLink').style.display = 'inline-block';
     }
 
-    // Secret shortcut: Press 'Shift + L' to go to admin page
+    // Secret shortcut: Press 'Ctrl + Shift + Alt + Y' to go to admin page
     window.addEventListener('keydown', (e) => {
-        if (e.shiftKey && e.key.toLowerCase() === 'l') {
+        if (e.ctrlKey && e.shiftKey && e.altKey && e.key.toLowerCase() === 'y') {
             window.location.href = '/admin';
         }
     });
