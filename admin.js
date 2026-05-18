@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         
         // Simple authentication check
-        if (uInput.value === 'admin' && pInput.value === 'Yassine.123456') {
+        if (uInput.value === 'play4' && pInput.value === 'Yassine.123456') {
             localStorage.setItem('adminAuth', 'true');
             window.location.href = 'dashboard.html';
         } else {
