@@ -1,0 +1,5 @@
+node_modules/
+test_scraper/node_modules/
+*.log
+.env
+.DS_Store
