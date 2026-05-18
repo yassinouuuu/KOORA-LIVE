@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-site-verification" content="kx9eS1NWjqXit06POhFZ65KL6H1XvCKOUtcYluLJSDI" />
     <title>koora live - كورة لايف</title>
     <link rel="icon" href="https://koora-live.vercel.app/logo.png" type="image/png" sizes="512x512">
     <link rel="apple-touch-icon" href="https://koora-live.vercel.app/logo.png" sizes="180x180">
@@ -106,7 +107,12 @@
 
             // Load match from Firebase DB (supports auto-imported matches)
             window.DB.get('customMatches', function(storedMatches) {
-                const match = storedMatches.find(m => m.id == matchId);
+                const match = storedMatches.find(m => {
+                    if (!matchId) return false;
+                    if (m.id == matchId) return true;
+                    if (matchId.endsWith('-' + m.id)) return true;
+                    return false;
+                });
 
             if (!match) {
                 document.getElementById('matchContent').innerHTML = '<div style="text-align:center; padding:50px;"><h2>المباراة غير موجودة</h2><a href="/" class="btn-primary" style="display:inline-block; width:auto; margin-top:20px;">العودة للرئيسية</a></div>';

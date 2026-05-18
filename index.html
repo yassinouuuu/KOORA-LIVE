@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="google-site-verification" content="9yrfjgKJ8uY0LiWePJRkR539GCOTLf2HucS7hCINfYk" />
+    <meta name="google-site-verification" content="kx9eS1NWjqXit06POhFZ65KL6H1XvCKOUtcYluLJSDI" />
     <title>koora live - كورة لايف</title>
     <link rel="icon" href="https://koora-live.vercel.app/logo.png" type="image/png" sizes="512x512">
     <link rel="apple-touch-icon" href="https://koora-live.vercel.app/logo.png" sizes="180x180">
@@ -444,7 +444,7 @@
                     strTime: m.time,
                     strLeague: m.league,
                     leagueBadge: m.leagueBadge,
-                    customLink: '/match?id=' + m.id,
+                    customLink: '/match?id=' + encodeURIComponent((m.home + '-ضد-' + m.away).replace(/\\s+/g, '-')) + '-' + m.id,
                     isCustom: true,
                     isAutoImported: m.isAutoImported || false,
                     channelName: m.channelName || '',

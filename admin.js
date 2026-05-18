@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Simple authentication check
         if (uInput.value === 'admin' && pInput.value === 'Yassine.123456') {
             localStorage.setItem('adminAuth', 'true');
-            window.location.href = '/dashboard';
+            window.location.href = 'dashboard.html';
         } else {
             errorMsg.style.display = 'block';
             errorMsg.textContent = 'اسم المستخدم أو كلمة المرور غير صحيحة!';
@@ -20,11 +20,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Check if already logged in
     if (localStorage.getItem('adminAuth') === 'true') {
-        window.location.href = '/dashboard';
+        window.location.href = 'dashboard.html';
     }
 });
 
 function logout() {
     localStorage.removeItem('adminAuth');
-    window.location.href = '/admin';
+    window.location.href = 'admin.html';
 }

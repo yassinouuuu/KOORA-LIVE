@@ -347,7 +347,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.logout = () => {
         localStorage.removeItem('adminAuth');
-        window.location.href = '/admin';
+        window.location.href = 'admin.html';
     };
 
     loadChannels();
