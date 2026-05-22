@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-site-verification" content="kx9eS1NWjqXit06POhFZ65KL6H1XvCKOUtcYluLJSDI" />
+    <title>أخبار الرياضة العالمية والعربية | يلا غول Yalla Goal</title>
+    <link rel="icon" href="/logo.png" type="image/png" sizes="512x512">
+    <link rel="apple-touch-icon" href="/logo.png" sizes="180x180">
+    <link rel="shortcut icon" href="/logo.png" type="image/x-icon">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="description" content="تابع أحدث وأهم أخبار كرة القدم العالمية والعربية، بث مباشر، نتائج المباريات، أخبار الانتقالات وتغطية حصرية لأهم البطولات على يلا غول Yalla Goal.">
+    <meta name="keywords" content="أخبار كرة القدم, أخبار الرياضة, يلا غول, yalla goal, يلا شوت أخبار, كورة لايف أخبار, أخبار الانتقالات, دوري أبطال أوروبا, الدوري الإنجليزي">
+    <meta name="author" content="Yalla Goal">
+    <!-- Open Graph tags -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="أخبار الرياضة العالمية والعربية | يلا غول Yalla Goal">
+    <meta property="og:description" content="تابع أحدث وأهم أخبار كرة القدم العالمية والعربية وتغطية حصرية لأهم البطولات على يلا غول Yalla Goal.">
+    <meta property="og:image" content="/logo.png">
+    <meta property="og:site_name" content="Yalla Goal">
+    <meta name="theme-color" content="#0b091f">
+    <link rel="canonical" href="https://yalla-goal.vercel.app/news.html">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .news-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .page-header h1 {
+            font-size: 2.5rem;
+            color: #fff;
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+        .page-header p {
+            color: var(--dim);
+            font-size: 1.1rem;
+        }
+
+        /* Search Box */
+        .search-wrapper {
+            max-width: 600px;
+            margin: 0 auto 40px;
+            position: relative;
+        }
+        .search-wrapper input {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            color: #fff;
+            font-family: inherit;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.3s;
+            backdrop-filter: blur(10px);
+        }
+        .search-wrapper input:focus {
+            border-color: var(--secondary);
+            background: rgba(255, 255, 255, 0.06);
+            box-shadow: 0 0 15px rgba(252, 70, 107, 0.2);
+        }
+        .search-wrapper i {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--dim);
+            font-size: 1.2rem;
+        }
+
+        /* Featured Article (Latest) */
+        .featured-article {
+            background: linear-gradient(135deg, rgba(63, 94, 251, 0.1), rgba(252, 70, 107, 0.1));
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 20px;
+            display: flex;
+            margin-bottom: 40px;
+            overflow: hidden;
+            transition: 0.3s;
+            text-decoration: none;
+            color: inherit;
+        }
+        .featured-article:hover {
+            transform: translateY(-5px);
+            border-color: var(--secondary);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        .featured-img {
+            flex: 1.2;
+            height: 400px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        .featured-content {
+            flex: 1;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .badge-featured {
+            background: var(--secondary);
+            color: #fff;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            align-self: flex-start;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+        .featured-title {
+            font-size: 1.8rem;
+            color: #fff;
+            margin-bottom: 15px;
+            font-weight: 800;
+            line-height: 1.4;
+        }
+        .featured-summary {
+            color: var(--dim);
+            font-size: 1rem;
+            line-height: 1.8;
+            margin-bottom: 25px;
+        }
+        .featured-meta {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: var(--dim);
+            font-size: 0.85rem;
+        }
+
+        /* News Grid */
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+        .news-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: 0.3s;
+            text-decoration: none;
+            color: inherit;
+        }
+        .news-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--secondary);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        }
+        .news-card-img {
+            height: 220px;
+            background-size: cover;
+            background-position: center;
+        }
+        .news-card-content {
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+        .news-card-title {
+            font-size: 1.2rem;
+            color: #fff;
+            font-weight: 700;
+            line-height: 1.5;
+            margin-bottom: 12px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .news-card-summary {
+            color: var(--dim);
+            font-size: 0.9rem;
+            line-height: 1.7;
+            margin-bottom: 20px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            flex: 1;
+        }
+        .news-card-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: var(--dim);
+            font-size: 0.8rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding-top: 15px;
+        }
+
+        .loading-state, .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--dim);
+        }
+        .loading-state i, .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--secondary);
+        }
+
+        @media (max-width: 992px) {
+            .featured-article {
+                flex-direction: column;
+            }
+            .featured-img {
+                height: 280px;
+            }
+            .featured-content {
+                padding: 30px;
+            }
+        }
+        @media (max-width: 576px) {
+            .page-header h1 { font-size: 2rem; }
+            .news-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<nav>
+    <a href="/" class="logo" style="display:flex; align-items:center; gap:10px; text-decoration:none;">
+        <img src="/logo.png" alt="Yalla Goal - يلا غول" style="height: 45px; border-radius: 8px; box-shadow: 0 0 15px rgba(63, 94, 251, 0.4);">
+        <span style="font-weight: 800; color: #fff; font-size: 1.5rem; letter-spacing: 1px;">Yalla<span style="color: #fc466b;">Goal</span></span>
+    </a>
+    <div class="nav-links">
+        <a href="/">الرئيسية</a>
+        <a href="/channels">القنوات</a>
+        <a href="/news.html" style="color: var(--secondary);">الأخبار</a>
+        <a id="adminLink" href="/admin" style="display: none;">الأدمين</a>
+    </div>
+</nav>
+
+<div class="news-container">
+    <div class="page-header">
+        <h1>أخبار الرياضة</h1>
+        <p>تغطية حصرية ولحظية لأبرز وأحدث أخبار كرة القدم العالمية والعربية</p>
+    </div>
+
+    <div class="search-wrapper">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="ابحث عن الأخبار، الأندية، أو اللاعبين...">
+    </div>
+
+    <div id="loading" class="loading-state">
+        <i class="fas fa-circle-notch fa-spin"></i>
+        <h3>جاري تحميل آخر الأخبار الرياضية...</h3>
+    </div>
+
+    <div id="articlesWrapper" style="display: none;">
+        <!-- Featured Article -->
+        <a href="#" id="featuredLink" class="featured-article">
+            <div class="featured-img" id="featuredImg"></div>
+            <div class="featured-content">
+                <span class="badge-featured"><i class="fas fa-star"></i> خبر هام</span>
+                <h2 class="featured-title" id="featuredTitle"></h2>
+                <p class="featured-summary" id="featuredSummary"></p>
+                <div class="featured-meta">
+                    <span><i class="fas fa-user-edit"></i> يلا غول</span>
+                    <span><i class="far fa-clock"></i> <span id="featuredDate"></span></span>
+                </div>
+            </div>
+        </a>
+
+        <!-- News Grid -->
+        <div class="news-grid" id="newsGrid"></div>
+    </div>
+
+    <div id="emptyState" class="empty-state" style="display: none;">
+        <i class="fas fa-search-minus"></i>
+        <h3>لم نجد أي أخبار تطابق بحثك</h3>
+        <p>جرب كلمات مفتاحية أخرى أو ابحث عن موضوع مختلف</p>
+    </div>
+</div>
+
+<footer style="text-align: center; padding: 30px; border-top: 1px solid rgba(255,255,255,0.05); color: var(--dim); font-size: 0.9rem;">
+    <div style="max-width: 900px; margin: 0 auto 20px; text-align: justify; line-height: 1.6;">
+        <p>شاهد أحدث <strong>أخبار الرياضة بث مباشر</strong> وتغطية حصرية لأهم مباريات اليوم عبر موقع <strong>يلا غول Yalla Goal</strong>. نوفر لك الأخبار الحصرية والأولى محلياً وعالمياً لنبقيك في قلب الحدث الرياضي على مدار الساعة.</p>
+    </div>
+    <p>© 2026 جميع الحقوق محفوظة لـ Yalla Goal - يلا غول</p>
+</footer>
+
+<script>
+    // Show admin link if authorized
+    if (localStorage.getItem('adminAuth') === 'true') {
+        document.getElementById('adminLink').style.display = 'inline-block';
+    }
+
+    // Secret shortcut to admin
+    window.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.shiftKey && e.altKey && e.key.toLowerCase() === 'y') {
+            window.location.href = '/admin';
+        }
+    });
+
+    let allArticles = [];
+
+    // Format Date helper
+    function formatDate(dateStr) {
+        const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+        return new Date(dateStr).toLocaleDateString('ar-EG', options);
+    }
+
+    // Load News
+    async function loadNews() {
+        try {
+            const res = await fetch('/news.json');
+            if (!res.ok) throw new Error('Failed to fetch news.json');
+            allArticles = await res.json();
+            
+            document.getElementById('loading').style.display = 'none';
+            if (allArticles.length === 0) {
+                document.getElementById('emptyState').style.display = 'block';
+                return;
+            }
+
+            document.getElementById('articlesWrapper').style.display = 'block';
+            displayArticles(allArticles);
+        } catch (e) {
+            console.error('Error loading news:', e);
+            document.getElementById('loading').innerHTML = `
+                <i class="fas fa-exclamation-triangle" style="color:var(--secondary);"></i>
+                <h3>حدث خطأ أثناء تحميل الأخبار</h3>
+                <p>يرجى إعادة محاولة تحميل الصفحة لاحقاً</p>
+            `;
+        }
+    }
+
+    // Display Articles
+    function displayArticles(articles) {
+        const newsGrid = document.getElementById('newsGrid');
+        newsGrid.innerHTML = '';
+
+        if (articles.length === 0) {
+            document.getElementById('articlesWrapper').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'block';
+            return;
+        }
+
+        document.getElementById('articlesWrapper').style.display = 'block';
+        document.getElementById('emptyState').style.display = 'none';
+
+        // Set Featured Article (first item)
+        const featured = articles[0];
+        document.getElementById('featuredLink').href = `article.html?id=${featured.id}`;
+        document.getElementById('featuredImg').style.backgroundImage = `url(${featured.image})`;
+        document.getElementById('featuredTitle').textContent = featured.title;
+        document.getElementById('featuredSummary').textContent = featured.summary;
+        document.getElementById('featuredDate').textContent = formatDate(featured.date);
+
+        // Display the rest in the grid
+        const gridItems = articles.slice(1);
+        gridItems.forEach(art => {
+            const card = document.createElement('a');
+            card.href = `article.html?id=${art.id}`;
+            card.className = 'news-card';
+            card.innerHTML = `
+                <div class="news-card-img" style="background-image: url(${art.image})"></div>
+                <div class="news-card-content">
+                    <h3 class="news-card-title">${art.title}</h3>
+                    <p class="news-card-summary">${art.summary}</p>
+                    <div class="news-card-meta">
+                        <span><i class="fas fa-user-edit"></i> يلا غول</span>
+                        <span><i class="far fa-clock"></i> ${formatDate(art.date)}</span>
+                    </div>
+                </div>
+            `;
+            newsGrid.appendChild(card);
+        });
+    }
+
+    // Search Filtering
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+        const query = e.target.value.toLowerCase().trim();
+        if (!query) {
+            displayArticles(allArticles);
+            return;
+        }
+
+        const filtered = allArticles.filter(art => 
+            art.title.toLowerCase().includes(query) || 
+            art.summary.toLowerCase().includes(query)
+        );
+        displayArticles(filtered);
+    });
+
+    // Run
+    loadNews();
+</script>
+</body>
+</html>

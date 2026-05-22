@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-site-verification" content="kx9eS1NWjqXit06POhFZ65KL6H1XvCKOUtcYluLJSDI" />
+    <title id="pageTitle">تحميل الخبر... | يلا غول Yalla Goal</title>
+    <link rel="icon" href="/logo.png" type="image/png" sizes="512x512">
+    <link rel="apple-touch-icon" href="/logo.png" sizes="180x180">
+    <link rel="shortcut icon" href="/logo.png" type="image/x-icon">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="description" id="metaDesc" content="تفاصيل الخبر الرياضي الحصري وتغطية شاملة لكل كواليس الرياضة العالمية والعربية على يلا غول Yalla Goal.">
+    <meta name="keywords" content="أخبار كرة القدم, تفاصيل الخبر, يلا غول, yalla goal, يلا شوت, كورة لايف">
+    <meta name="author" content="Yalla Goal">
+    <!-- Open Graph tags dynamic -->
+    <meta property="og:type" content="article">
+    <meta property="og:title" id="ogTitle" content="تحميل الخبر... | يلا غول Yalla Goal">
+    <meta property="og:description" id="ogDesc" content="تفاصيل الخبر الرياضي الحصري وتغطية شاملة لكل كواليس الرياضة العالمية والعربية على يلا غول Yalla Goal.">
+    <meta property="og:image" id="ogImage" content="/logo.png">
+    <meta name="theme-color" content="#0b091f">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .article-page-container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--secondary);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 30px;
+            transition: 0.2s;
+        }
+        .back-btn:hover {
+            color: #fff;
+            transform: translateX(5px);
+        }
+
+        /* Article Card Header */
+        .article-header-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 40px;
+            backdrop-filter: blur(10px);
+        }
+        .article-meta {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            color: var(--dim);
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+        }
+        .article-title-main {
+            font-size: 2.2rem;
+            color: #fff;
+            font-weight: 800;
+            line-height: 1.4;
+            margin-bottom: 20px;
+        }
+        .article-teaser {
+            font-size: 1.1rem;
+            color: var(--dim);
+            line-height: 1.8;
+            border-right: 4px solid var(--secondary);
+            padding-right: 15px;
+        }
+
+        /* Main Image */
+        .article-main-image {
+            width: 100%;
+            height: 450px;
+            border-radius: 20px;
+            background-size: cover;
+            background-position: center;
+            margin-bottom: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Article Content Text Styling */
+        .article-body-content {
+            font-size: 1.15rem;
+            line-height: 2;
+            color: #e0e0e0;
+            text-align: justify;
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 60px;
+        }
+        .article-body-content p {
+            margin-bottom: 25px;
+        }
+        .article-body-content strong {
+            color: #fff;
+            font-weight: 700;
+        }
+        .article-body-content a {
+            color: var(--secondary);
+            text-decoration: none;
+            font-weight: 700;
+            transition: 0.2s;
+        }
+        .article-body-content a:hover {
+            color: #fff;
+            text-decoration: underline;
+        }
+        .article-body-content blockquote {
+            background: rgba(252, 70, 107, 0.05);
+            border-right: 4px solid var(--secondary);
+            padding: 20px 25px;
+            margin: 30px 0;
+            border-radius: 8px;
+            font-style: italic;
+            color: #fff;
+        }
+
+        /* Error States */
+        .error-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--dim);
+        }
+        .error-state i {
+            font-size: 4rem;
+            color: var(--secondary);
+            margin-bottom: 20px;
+        }
+        .error-state h2 {
+            color: #fff;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .article-title-main { font-size: 1.7rem; }
+            .article-header-card { padding: 25px; }
+            .article-body-content { padding: 25px; font-size: 1.05rem; }
+            .article-main-image { height: 260px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<nav>
+    <a href="/" class="logo" style="display:flex; align-items:center; gap:10px; text-decoration:none;">
+        <img src="/logo.png" alt="Yalla Goal - يلا غول" style="height: 45px; border-radius: 8px; box-shadow: 0 0 15px rgba(63, 94, 251, 0.4);">
+        <span style="font-weight: 800; color: #fff; font-size: 1.5rem; letter-spacing: 1px;">Yalla<span style="color: #fc466b;">Goal</span></span>
+    </a>
+    <div class="nav-links">
+        <a href="/">الرئيسية</a>
+        <a href="/channels">القنوات</a>
+        <a href="/news.html">الأخبار</a>
+        <a id="adminLink" href="/admin" style="display: none;">الأدمين</a>
+    </div>
+</nav>
+
+<div class="article-page-container">
+    <a href="/news.html" class="back-btn"><i class="fas fa-arrow-right"></i> العودة للأخبار الرياضية</a>
+
+    <div id="loading" class="error-state">
+        <i class="fas fa-circle-notch fa-spin"></i>
+        <h2>جاري تحميل تفاصيل الخبر...</h2>
+    </div>
+
+    <div id="articleWrapper" style="display: none;">
+        <!-- Header Info -->
+        <div class="article-header-card">
+            <div class="article-meta">
+                <span><i class="fas fa-user-edit" style="color:var(--secondary);"></i> كاتب المقال: يلا غول</span>
+                <span><i class="far fa-clock" style="color:var(--secondary);"></i> <span id="articleDate"></span></span>
+            </div>
+            <h1 class="article-title-main" id="articleTitle"></h1>
+            <p class="article-teaser" id="articleTeaser"></p>
+        </div>
+
+        <!-- Cover Image -->
+        <div class="article-main-image" id="articleImg"></div>
+
+        <!-- Content Body -->
+        <div class="article-body-content" id="articleBody"></div>
+    </div>
+
+    <div id="errorState" class="error-state" style="display: none;">
+        <i class="fas fa-exclamation-triangle"></i>
+        <h2>عذراً، لم نتمكن من العثور على هذا المقال!</h2>
+        <p>ربما تم حذفه أو أن الرابط غير صحيح. يرجى التأكد من الرابط والمحاولة مجدداً.</p>
+        <a href="/news.html" class="btn-primary" style="display:inline-block; margin-top:20px; text-decoration:none; padding:12px 30px;">العودة للأخبار</a>
+    </div>
+</div>
+
+<footer style="text-align: center; padding: 30px; border-top: 1px solid rgba(255,255,255,0.05); color: var(--dim); font-size: 0.9rem;">
+    <div style="max-width: 900px; margin: 0 auto 20px; text-align: justify; line-height: 1.6;">
+        <p>شاهد أحدث <strong>أخبار الرياضة بث مباشر</strong> وتغطية حصرية لأهم مباريات اليوم عبر موقع <strong>يلا غول Yalla Goal</strong>. نوفر لك الأخبار الحصرية والأولى محلياً وعالمياً لنبقيك في قلب الحدث الرياضي على مدار الساعة.</p>
+    </div>
+    <p>© 2026 جميع الحقوق محفوظة لـ Yalla Goal - يلا غول</p>
+</footer>
+
+<script>
+    // Show admin if logged in
+    if (localStorage.getItem('adminAuth') === 'true') {
+        document.getElementById('adminLink').style.display = 'inline-block';
+    }
+
+    // Secret shortcut to admin
+    window.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.shiftKey && e.altKey && e.key.toLowerCase() === 'y') {
+            window.location.href = '/admin';
+        }
+    });
+
+    // Helper format Date
+    function formatDate(dateStr) {
+        const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+        return new Date(dateStr).toLocaleDateString('ar-EG', options);
+    }
+
+    // Load Single Article
+    async function loadArticle() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const artId = urlParams.get('id');
+
+        if (!artId) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('errorState').style.display = 'block';
+            return;
+        }
+
+        try {
+            const res = await fetch('/news.json');
+            if (!res.ok) throw new Error('Failed to load news database');
+            const articles = await res.json();
+
+            const article = articles.find(a => a.id === artId);
+            if (!article) {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('errorState').style.display = 'block';
+                return;
+            }
+
+            // Populate page content
+            document.getElementById('articleTitle').textContent = article.title;
+            document.getElementById('articleTeaser').textContent = article.summary;
+            document.getElementById('articleDate').textContent = formatDate(article.date);
+            document.getElementById('articleImg').style.backgroundImage = `url(${article.image})`;
+            document.getElementById('articleBody').innerHTML = article.content;
+
+            // Update Metadata for SEO dynamic rendering (helpful if pre-rendered)
+            document.title = `${article.title} | أخبار يلا غول Yalla Goal`;
+            document.getElementById('pageTitle').textContent = `${article.title} | أخبار يلا غول Yalla Goal`;
+            document.getElementById('metaDesc').setAttribute('content', article.summary);
+            document.getElementById('ogTitle').setAttribute('content', article.title);
+            document.getElementById('ogDesc').setAttribute('content', article.summary);
+            document.getElementById('ogImage').setAttribute('content', article.image);
+
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('articleWrapper').style.display = 'block';
+
+        } catch (e) {
+            console.error('Error loading article:', e);
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('errorState').style.display = 'block';
+        }
+    }
+
+    loadArticle();
+</script>
+</body>
+</html>

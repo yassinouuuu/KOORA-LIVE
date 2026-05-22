@@ -615,7 +615,7 @@
     // ===== HOME LATEST NEWS SYSTEM =====
     async function loadHomeNews() {
         try {
-            var res = await fetch('news.json');
+            var res = await fetch('/news.json');
             if (!res.ok) return;
             var articles = await res.json();
             var container = document.getElementById('homeNewsList');
