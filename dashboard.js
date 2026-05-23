@@ -350,6 +350,13 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = 'admin.html';
     };
 
+    // Cloud database status banner
+    const cloudStatusBanner = document.getElementById('cloudStatusBanner');
+    window.onFirebaseError = function(err) {
+        // Firebase errors are non-critical since we use JSONBlob as primary
+        console.warn('[Dashboard] Firebase error (non-critical):', err);
+    };
+
     loadChannels();
     loadMatchesAdmin();
 });
