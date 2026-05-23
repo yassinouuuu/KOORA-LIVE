@@ -1,0 +1,32 @@
+name: Auto Scrape News
+
+on:
+  schedule:
+    - cron: '0 */3 * * *' # Run every 3 hours
+  workflow_dispatch: # Allow manual trigger
+
+permissions:
+  contents: write # Needed to commit and push changes
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run Scraper
+        run: node scrape-news.js
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "GitHub Action Scraper"
+          git config --global user.email "action@github.com"
+          git add news.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: auto-update news.json [skip ci]" && git push)

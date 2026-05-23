@@ -22,6 +22,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
     <style>
         .article-page-container {
             max-width: 900px;
@@ -259,6 +263,81 @@
             document.getElementById('articleDate').textContent = formatDate(article.date);
             document.getElementById('articleImg').style.backgroundImage = `url(${article.image})`;
             document.getElementById('articleBody').innerHTML = article.content;
+
+            // Inject dynamic backlinks if match exists
+            if (window.DB) {
+                window.DB.get('customMatches', function(matches) {
+                    if (!matches || matches.length === 0) return;
+                    
+                    // Normalize name helper to match teams
+                    function cleanName(name) {
+                        return (name || '')
+                            .toLowerCase()
+                            .replace(/^(fc|cf|ac|rc|sc|cd|ud|rcd|sd)\s/i, '')
+                            .replace(/\s(fc|cf|sc|united|city|town|club)$/i, '')
+                            .trim();
+                    }
+
+                    // Look for a matching match
+                    const titleLower = article.title.toLowerCase();
+                    const contentLower = article.content.toLowerCase();
+                    
+                    const foundMatch = matches.find(m => {
+                        const hClean = cleanName(m.home);
+                        const aClean = cleanName(m.away);
+                        
+                        return (hClean && (titleLower.includes(hClean) || contentLower.includes(hClean))) ||
+                               (aClean && (titleLower.includes(aClean) || contentLower.includes(aClean))) ||
+                               titleLower.includes(m.home.toLowerCase()) || 
+                               contentLower.includes(m.home.toLowerCase()) ||
+                               titleLower.includes(m.away.toLowerCase()) || 
+                               contentLower.includes(m.away.toLowerCase());
+                    });
+
+                    if (foundMatch) {
+                        console.log('Dynamic Match found for article!', foundMatch);
+                        const matchUrl = `/match?id=${encodeURIComponent((foundMatch.home + '-ضد-' + foundMatch.away).replace(/\s+/g, '-'))}-${foundMatch.id}`;
+                        
+                        // 1. Create a beautiful banner
+                        const bannerHtml = `
+                            <div class="match-backlink-banner" style="background: linear-gradient(135deg, rgba(63, 94, 251, 0.12) 0%, rgba(252, 70, 107, 0.12) 100%); border: 1px solid rgba(252, 70, 107, 0.3); border-radius: 16px; padding: 25px; margin: 0 0 30px 0; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.3); backdrop-filter: blur(10px); position: relative; overflow: hidden;">
+                                <div style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: radial-gradient(circle, var(--secondary) 0%, transparent 70%); opacity: 0.15; pointer-events: none;"></div>
+                                <h3 style="color: #fff; margin-bottom: 12px; font-size: 1.3rem; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                    <i class="fas fa-play-circle" style="color: var(--secondary); font-size: 1.5rem; animation: pulse 1.2s infinite;"></i>
+                                    شاهد البث المباشر للمباراة الآن
+                                </h3>
+                                <p style="color: #e0e0e0; font-size: 1rem; margin-bottom: 18px; line-height: 1.6;">
+                                    تابع مباراة ملحمية تجمع بين <strong>${foundMatch.home}</strong> و <strong>${foundMatch.away}</strong> بث مباشر بدون تقطيع وبجودات متعددة تناسب الجميع.
+                                </p>
+                                <a href="${matchUrl}" style="display: inline-block; padding: 12px 30px; background: linear-gradient(45deg, var(--primary), var(--secondary)); color: #fff; border-radius: 30px; text-decoration: none; font-weight: 700; font-size: 0.95rem; box-shadow: 0 4px 15px rgba(252, 70, 107, 0.4); transition: 0.3s; transform: scale(1);" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                    اضغط هنا لمشاهدة المباراة مباشرة <i class="fas fa-arrow-left" style="margin-right: 8px; vertical-align: middle;"></i>
+                                </a>
+                            </div>
+                        `;
+                        
+                        // 2. Prepend the banner to the content
+                        let updatedContent = bannerHtml + article.content;
+                        
+                        // 3. Smart inline link replacement (replace first occurrence of team name with a backlink)
+                        try {
+                            const homeEscaped = foundMatch.home.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+                            const awayEscaped = foundMatch.away.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+                            
+                            const homeRegex = new RegExp(`(${homeEscaped})`, 'i');
+                            const awayRegex = new RegExp(`(${awayEscaped})`, 'i');
+                            
+                            // Insert a link for the home team
+                            updatedContent = updatedContent.replace(homeRegex, `<a href="${matchUrl}" style="color: var(--secondary); font-weight: 800; text-decoration: underline;" target="_blank">$1</a>`);
+                            // Insert a link for the away team
+                            updatedContent = updatedContent.replace(awayRegex, `<a href="${matchUrl}" style="color: var(--secondary); font-weight: 800; text-decoration: underline;" target="_blank">$1</a>`);
+                        } catch (e) {
+                            console.warn("Regex link injection failed:", e);
+                        }
+                        
+                        document.getElementById('articleBody').innerHTML = updatedContent;
+                    }
+                });
+            }
 
             // Update Metadata for SEO dynamic rendering (helpful if pre-rendered)
             document.title = `${article.title} | أخبار يلا غول Yalla Goal`;
