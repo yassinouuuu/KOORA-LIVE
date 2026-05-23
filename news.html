@@ -24,6 +24,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
     <style>
         .news-container {
             max-width: 1200px;
@@ -324,21 +328,71 @@
         return new Date(dateStr).toLocaleDateString('ar-EG', options);
     }
 
+    // Try to fetch news.json from multiple paths
+    async function fetchNewsJson() {
+        const paths = [
+            '/news.json',
+            './news.json',
+            'news.json'
+        ];
+        for (const path of paths) {
+            try {
+                const res = await fetch(path);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (Array.isArray(data) && data.length > 0) return data;
+                }
+            } catch (e) { /* try next */ }
+        }
+        return null;
+    }
+
+    // Load from Firebase as fallback
+    function loadNewsFromFirebase(callback) {
+        if (window.FIREBASE_READY && window.db) {
+            window.db.ref('articles').once('value').then(function(snapshot) {
+                var data = snapshot.val();
+                if (data) {
+                    var arr = Array.isArray(data) ? data : Object.values(data);
+                    arr.sort((a, b) => new Date(b.date) - new Date(a.date));
+                    callback(arr);
+                } else {
+                    callback([]);
+                }
+            }).catch(function() { callback([]); });
+        } else {
+            // Try localStorage cache
+            var cached = JSON.parse(localStorage.getItem('articles') || 'null');
+            callback(cached || []);
+        }
+    }
+
     // Load News
     async function loadNews() {
         try {
-            const res = await fetch('/news.json');
-            if (!res.ok) throw new Error('Failed to fetch news.json');
-            allArticles = await res.json();
-            
-            document.getElementById('loading').style.display = 'none';
-            if (allArticles.length === 0) {
-                document.getElementById('emptyState').style.display = 'block';
+            // First try fetching the static JSON file
+            const jsonData = await fetchNewsJson();
+
+            if (jsonData && jsonData.length > 0) {
+                allArticles = jsonData;
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('articlesWrapper').style.display = 'block';
+                displayArticles(allArticles);
                 return;
             }
 
-            document.getElementById('articlesWrapper').style.display = 'block';
-            displayArticles(allArticles);
+            // Fallback: load from Firebase
+            loadNewsFromFirebase(function(articles) {
+                document.getElementById('loading').style.display = 'none';
+                if (!articles || articles.length === 0) {
+                    document.getElementById('emptyState').style.display = 'block';
+                    return;
+                }
+                allArticles = articles;
+                document.getElementById('articlesWrapper').style.display = 'block';
+                displayArticles(allArticles);
+            });
+
         } catch (e) {
             console.error('Error loading news:', e);
             document.getElementById('loading').innerHTML = `
