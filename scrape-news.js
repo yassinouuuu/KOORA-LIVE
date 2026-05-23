@@ -181,9 +181,45 @@ async function scrapeNews() {
             await new Promise(r => setTimeout(r, 500));
         }
         
-        // Save the scraped news to news.json
-        fs.writeFileSync(path.join(__dirname, 'news.json'), JSON.stringify(finalArticles, null, 2));
-        console.log(`Successfully saved ${finalArticles.length} news articles to news.json ✅`);
+        // Load existing articles from news.json if it exists
+        const newsJsonPath = path.join(__dirname, 'news.json');
+        let existingArticles = [];
+        if (fs.existsSync(newsJsonPath)) {
+            try {
+                const fileData = fs.readFileSync(newsJsonPath, 'utf8');
+                const parsed = JSON.parse(fileData);
+                if (Array.isArray(parsed)) {
+                    existingArticles = parsed;
+                }
+            } catch (err) {
+                console.warn('Could not parse existing news.json, starting fresh:', err.message);
+            }
+        }
+
+        // Combine new and old, removing duplicates by ID
+        const allArticlesMap = new Map();
+        
+        // Add existing articles first
+        existingArticles.forEach(art => {
+            if (art && art.id) {
+                allArticlesMap.set(art.id, art);
+            }
+        });
+        
+        // Overwrite or add newly scraped articles
+        finalArticles.forEach(art => {
+            if (art && art.id) {
+                allArticlesMap.set(art.id, art);
+            }
+        });
+
+        // Convert map back to array and sort by date descending (newest first)
+        const mergedArticles = Array.from(allArticlesMap.values());
+        mergedArticles.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        // Save the merged news back to news.json
+        fs.writeFileSync(newsJsonPath, JSON.stringify(mergedArticles, null, 2));
+        console.log(`Successfully merged and saved ${mergedArticles.length} total news articles (added ${finalArticles.length} new) to news.json ✅`);
         
     } catch (e) {
         console.error('Fatal error during scraping:', e);
