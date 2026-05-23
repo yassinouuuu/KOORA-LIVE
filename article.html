@@ -12,11 +12,7 @@
     <meta name="description" id="metaDesc" content="تفاصيل الخبر الرياضي الحصري وتغطية شاملة لكل كواليس الرياضة العالمية والعربية على يلا غول Yalla Goal.">
     <meta name="keywords" content="أخبار كرة القدم, تفاصيل الخبر, يلا غول, yalla goal, يلا شوت, كورة لايف">
     <meta name="author" content="Yalla Goal">
-    <!-- Open Graph tags dynamic -->
-    <meta property="og:type" content="article">
-    <meta property="og:title" id="ogTitle" content="تحميل الخبر... | يلا غول Yalla Goal">
-    <meta property="og:description" id="ogDesc" content="تفاصيل الخبر الرياضي الحصري وتغطية شاملة لكل كواليس الرياضة العالمية والعربية على يلا غول Yalla Goal.">
-    <meta property="og:image" id="ogImage" content="/logo.png">
+    <!-- Open Graph tags are injected server-side by api/article.js -->
     <meta name="theme-color" content="#0b091f">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -394,13 +390,8 @@
                 });
             });
 
-            // Update Metadata for SEO dynamic rendering (helpful if pre-rendered)
+            // Update page title for browser tab (OG tags already injected server-side)
             document.title = `${article.title} | أخبار يلا غول Yalla Goal`;
-            document.getElementById('pageTitle').textContent = `${article.title} | أخبار يلا غول Yalla Goal`;
-            document.getElementById('metaDesc').setAttribute('content', article.summary);
-            document.getElementById('ogTitle').setAttribute('content', article.title);
-            document.getElementById('ogDesc').setAttribute('content', article.summary);
-            document.getElementById('ogImage').setAttribute('content', article.image);
 
             // Inject dynamic Google SEO JSON-LD NewsArticle Structured Data
             try {
