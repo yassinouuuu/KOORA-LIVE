@@ -208,6 +208,18 @@
             </div>
             <h1 class="article-title-main" id="articleTitle"></h1>
             <p class="article-teaser" id="articleTeaser"></p>
+            
+            <!-- Social Share Buttons -->
+            <div class="share-container" style="margin-top: 25px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                <span style="font-weight: 700; color: #fff; font-size: 0.95rem;"><i class="fas fa-share-alt" style="color: var(--secondary); margin-left: 5px;"></i> مشاركة الخبر:</span>
+                <div style="display: flex; gap: 10px;">
+                    <a id="shareFB" href="#" target="_blank" style="width: 36px; height: 36px; border-radius: 50%; background: #3b5998; color: #fff; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: 0.3s;" class="share-btn" title="مشاركة عبر فيسبوك"><i class="fab fa-facebook-f"></i></a>
+                    <a id="shareTwitter" href="#" target="_blank" style="width: 36px; height: 36px; border-radius: 50%; background: #000; color: #fff; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: 0.3s;" class="share-btn" title="مشاركة عبر إكس / تويتر"><i class="fab fa-x-twitter"></i></a>
+                    <a id="shareWA" href="#" target="_blank" style="width: 36px; height: 36px; border-radius: 50%; background: #25d366; color: #fff; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: 0.3s;" class="share-btn" title="مشاركة عبر واتساب"><i class="fab fa-whatsapp"></i></a>
+                    <a id="shareTelegram" href="#" target="_blank" style="width: 36px; height: 36px; border-radius: 50%; background: #0088cc; color: #fff; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: 0.3s;" class="share-btn" title="مشاركة عبر تيليجرام"><i class="fab fa-telegram-plane"></i></a>
+                    <button id="copyLink" style="width: 36px; height: 36px; border: none; border-radius: 50%; background: rgba(255,255,255,0.08); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s;" class="share-btn" title="نسخ رابط المقال"><i class="fas fa-link"></i></button>
+                </div>
+            </div>
         </div>
 
         <!-- Cover Image -->
@@ -362,6 +374,26 @@
                 });
             }
 
+            // Setup Social Share URLs
+            const pageUrl = window.location.href;
+            const encodedUrl = encodeURIComponent(pageUrl);
+            const encodedTitle = encodeURIComponent(article.title);
+
+            document.getElementById('shareFB').href = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
+            document.getElementById('shareTwitter').href = `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`;
+            document.getElementById('shareWA').href = `https://api.whatsapp.com/send?text=${encodedTitle}%20${encodedUrl}`;
+            document.getElementById('shareTelegram').href = `https://t.me/share/url?url=${encodedUrl}&text=${encodedTitle}`;
+            
+            document.getElementById('copyLink').addEventListener('click', () => {
+                navigator.clipboard.writeText(pageUrl).then(() => {
+                    const btn = document.getElementById('copyLink');
+                    btn.innerHTML = '<i class="fas fa-check" style="color:var(--accent);"></i>';
+                    setTimeout(() => {
+                        btn.innerHTML = '<i class="fas fa-link"></i>';
+                    }, 2000);
+                });
+            });
+
             // Update Metadata for SEO dynamic rendering (helpful if pre-rendered)
             document.title = `${article.title} | أخبار يلا غول Yalla Goal`;
             document.getElementById('pageTitle').textContent = `${article.title} | أخبار يلا غول Yalla Goal`;
@@ -369,6 +401,38 @@
             document.getElementById('ogTitle').setAttribute('content', article.title);
             document.getElementById('ogDesc').setAttribute('content', article.summary);
             document.getElementById('ogImage').setAttribute('content', article.image);
+
+            // Inject dynamic Google SEO JSON-LD NewsArticle Structured Data
+            try {
+                const schemaData = {
+                    "@context": "https://schema.org",
+                    "@type": "NewsArticle",
+                    "headline": article.title,
+                    "image": [ article.image ],
+                    "datePublished": article.date,
+                    "dateModified": article.date,
+                    "author": {
+                        "@type": "Organization",
+                        "name": "يلا غول Yalla Goal",
+                        "url": "https://yallagoaltv.com"
+                    },
+                    "publisher": {
+                        "@type": "Organization",
+                        "name": "يلا غول Yalla Goal",
+                        "logo": {
+                            "@type": "ImageObject",
+                            "url": "https://yallagoaltv.com/logo.png"
+                        }
+                    },
+                    "description": article.summary
+                };
+                const scriptEl = document.createElement('script');
+                scriptEl.type = "application/ld+json";
+                scriptEl.text = JSON.stringify(schemaData);
+                document.head.appendChild(scriptEl);
+            } catch (e) {
+                console.warn("Schema injection failed:", e);
+            }
 
             document.getElementById('loading').style.display = 'none';
             document.getElementById('articleWrapper').style.display = 'block';
