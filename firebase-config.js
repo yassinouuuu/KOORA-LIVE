@@ -15,7 +15,12 @@
 
 // ---- JSONBlob Configuration ----
 var JSONBLOB_ID = '019e55ce-5d96-74fa-9e94-28e1788f4d4f';
-var JSONBLOB_API = 'https://jsonblob.com/api/jsonBlob/' + JSONBLOB_ID;
+var isLocalDev = window.location.hostname === 'localhost' || 
+                 window.location.hostname === '127.0.0.1' || 
+                 window.location.protocol === 'file:';
+var JSONBLOB_API = isLocalDev 
+    ? 'https://jsonblob.com/api/jsonBlob/' + JSONBLOB_ID 
+    : '/api/db';
 
 // ---- Initialize Firebase (keep as optional backup) ----
 const firebaseConfig = {
@@ -206,10 +211,8 @@ window.DB = {
             if (cloudData !== null && cloudData !== undefined) {
                 var data = Array.isArray(cloudData) ? cloudData :
                            (typeof cloudData === 'object' ? Object.values(cloudData) : []);
-                if (data.length > 0 || localData.length === 0) {
-                    localStorage.setItem(key, JSON.stringify(data));
-                    callback(data);
-                }
+                localStorage.setItem(key, JSON.stringify(data));
+                callback(data);
             }
         });
 
