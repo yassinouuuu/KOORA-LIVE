@@ -262,7 +262,13 @@
             document.getElementById('articleTeaser').textContent = article.summary;
             document.getElementById('articleDate').textContent = formatDate(article.date);
             document.getElementById('articleImg').style.backgroundImage = `url(${article.image})`;
-            document.getElementById('articleBody').innerHTML = article.content;
+            
+            // Replace beIN Sports subscription links with the user's custom website link
+            let cleanedContent = (article.content || '')
+                .replace(/href="https:\/\/www\.bein\.(online|pro)[^"]*"/gi, 'href="https://yallagoaltv.com/"')
+                .replace(/href="http:\/\/www\.bein\.(online|pro)[^"]*"/gi, 'href="https://yallagoaltv.com/"');
+                
+            document.getElementById('articleBody').innerHTML = cleanedContent;
 
             // Inject dynamic backlinks if match exists
             if (window.DB) {
