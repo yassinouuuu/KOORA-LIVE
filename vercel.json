@@ -4,6 +4,14 @@
     {
       "source": "/article",
       "destination": "/api/article"
+    },
+    {
+      "source": "/news",
+      "destination": "/news.html"
+    },
+    {
+      "source": "/channels",
+      "destination": "/channels.html"
     }
   ]
 }

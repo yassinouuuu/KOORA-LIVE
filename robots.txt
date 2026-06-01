@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin/
 Disallow: /dashboard/
 
-Sitemap: https://koora-live.vercel.app/sitemap.xml
+Sitemap: https://yallagoaltv.com/sitemap.xml

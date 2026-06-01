@@ -221,9 +221,55 @@ async function scrapeNews() {
         fs.writeFileSync(newsJsonPath, JSON.stringify(mergedArticles, null, 2));
         console.log(`Successfully merged and saved ${mergedArticles.length} total news articles (added ${finalArticles.length} new) to news.json ✅`);
         
+        // Dynamically regenerate sitemap.xml
+        generateSitemap(mergedArticles);
+        
     } catch (e) {
         console.error('Fatal error during scraping:', e);
     }
+}
+
+function generateSitemap(articles) {
+    const sitemapPath = path.join(__dirname, 'sitemap.xml');
+    const latestDate = articles[0]?.date ? articles[0].date.split('T')[0] : '2026-05-23';
+    
+    let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Pages principales -->
+  <url>
+    <loc>https://yallagoaltv.com/</loc>
+    <lastmod>${latestDate}</lastmod>
+    <changefreq>always</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://yallagoaltv.com/channels</loc>
+    <lastmod>${latestDate}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://yallagoaltv.com/news</loc>
+    <lastmod>${latestDate}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+`;
+
+    // Add article URLs
+    articles.forEach(art => {
+        const dateOnly = art.date ? art.date.split('T')[0] : '2026-05-23';
+        xml += `  <url>
+    <loc>https://yallagoaltv.com/article?id=${art.id}</loc>
+    <lastmod>${dateOnly}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>\n`;
+    });
+
+    xml += `</urlset>\n`;
+    fs.writeFileSync(sitemapPath, xml, 'utf8');
+    console.log('Dynamic sitemap.xml generated successfully! ✅');
 }
 
 scrapeNews();
