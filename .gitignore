@@ -3,3 +3,15 @@ test_scraper/node_modules/
 *.log
 .env
 .DS_Store
+
+.vercel
+scratch/
+test_*.js
+deep_inspect.js
+extract.js
+find_*.js
+inspect_*.js
+article.json
+bein.html
+bein.json
+layout.json
