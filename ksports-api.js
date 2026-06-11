@@ -41,61 +41,77 @@ window.KSportsAPI = (function() {
     const CHANNEL_LEAGUE_MAP = {
         // ═══════════════════════════════════════════════
         // beIN Sports Network (شبكة بي إن سبورت)
-        // الحقوق: الدوري الإنجليزي، لا ليغا، الدوري الفرنسي،
+        // الحقوق: كأس العالم، الدوري الإنجليزي، لا ليغا، الدوري الفرنسي،
         //         أبطال أوروبا، الدوري الأوروبي، دوري المؤتمر،
         //         أبطال آسيا، أبطال أفريقيا، كأس أمم أفريقيا
         // ═══════════════════════════════════════════════
         'bein sport 1': {
-            leagues: [39, 2, 3, 45, 48, 848, 531], // PL, UCL, UEL, FA Cup, EFL Cup, UECL, UEFA Super Cup
+            leagues: [1, 39, 2, 3, 45, 48, 848, 531], // World Cup, PL, UCL, UEL, FA Cup, EFL Cup, UECL, UEFA Super Cup
             keywords: ['إنجليزي', 'أبطال أوروبا', 'بريميير ليغ']
         },
         'bein sport 2': {
-            leagues: [2, 3, 848, 39, 45], // UCL, UEL, UECL, PL, FA Cup
+            leagues: [1, 2, 3, 848, 39, 45], // World Cup, UCL, UEL, UECL, PL, FA Cup
             keywords: ['أبطال أوروبا', 'يوروبا ليغ']
         },
         'bein sport 3': {
-            leagues: [140, 143, 144, 3, 848], // La Liga, Copa del Rey, Spanish Super Cup, UEL, UECL
+            leagues: [1, 140, 143, 144, 3, 848], // World Cup, La Liga, Copa del Rey, Spanish Super Cup, UEL, UECL
             keywords: ['اسباني', 'لا ليغا', 'إسباني']
         },
         'bein sport 4': {
-            leagues: [61, 66, 848, 2], // Ligue 1, Coupe de France, UECL, UCL
+            leagues: [1, 61, 66, 848, 2], // World Cup, Ligue 1, Coupe de France, UECL, UCL
             keywords: ['فرنسي', 'ليغ 1']
         },
         'bein sport 5': {
-            leagues: [2, 3, 61, 140, 848], // UCL, UEL, Ligue 1, La Liga, UECL
+            leagues: [1, 2, 3, 61, 140, 848], // World Cup, UCL, UEL, Ligue 1, La Liga, UECL
             keywords: ['أوروبي']
         },
         'bein sport 6': {
-            leagues: [218, 114, 20, 2, 3], // AFCON, CAF CL, CAF Confed Cup, UCL, UEL
+            leagues: [1, 218, 114, 20, 2, 3], // World Cup, AFCON, CAF CL, CAF Confed Cup, UCL, UEL
             keywords: ['أفريقيا', 'كاف']
         },
         'bein sport 7': {
-            leagues: [39, 2, 3, 140, 61], // PL, UCL, UEL, La Liga, Ligue 1
+            leagues: [1, 39, 2, 3, 140, 61], // World Cup, PL, UCL, UEL, La Liga, Ligue 1
             keywords: ['أوروبي']
         },
         'bein sport 8': {
-            leagues: [39, 2, 3, 140, 61, 848], // overflow channels
+            leagues: [1, 39, 2, 3, 140, 61, 848], // World Cup, overflow channels
             keywords: []
         },
         'bein sport 9': {
-            leagues: [39, 2, 3, 140, 61, 848], // overflow channels
+            leagues: [1, 39, 2, 3, 140, 61, 848], // World Cup, overflow channels
             keywords: []
         },
         'bein sport premium 1': {
-            leagues: [39, 2, 140], // PL, UCL, La Liga
+            leagues: [1, 39, 2, 140], // World Cup, PL, UCL, La Liga
             keywords: ['بريميوم', 'إنجليزي']
         },
         'bein sport premium 2': {
-            leagues: [39, 2, 140, 61], // PL, UCL, La Liga, Ligue 1
+            leagues: [1, 39, 2, 140, 61], // World Cup, PL, UCL, La Liga, Ligue 1
             keywords: ['بريميوم']
         },
         'bein sport afc': {
-            leagues: [17, 18, 480], // AFC Champions League Elite, AFC Cup, AFC Qualifiers
+            leagues: [1, 17, 18, 480], // World Cup, AFC Champions League Elite, AFC Cup, AFC Qualifiers
             keywords: ['آسيا', 'أبطال آسيا']
         },
         'bein sport xtra 1': {
-            leagues: [39, 2, 3, 140, 61], // Extra overflow
+            leagues: [1, 39, 2, 3, 140, 61], // World Cup, Extra overflow
             keywords: ['إكسترا']
+        },
+        'bein sport max 1': {
+            leagues: [1, 218, 4], // World Cup, AFCON, Euro
+            keywords: ['ماكس', 'max', 'كأس العالم']
+        },
+        'bein sport max 2': {
+            leagues: [1, 218, 4], // World Cup, AFCON, Euro
+            keywords: ['ماكس', 'max', 'كأس العالم']
+        },
+        'bein sport max 3': {
+            leagues: [1, 218, 4], // World Cup, AFCON, Euro
+            keywords: ['ماكس', 'max', 'كأس العالم']
+        },
+        'bein sport max 4': {
+            leagues: [1, 218, 4], // World Cup, AFCON, Euro
+            keywords: ['ماكس', 'max', 'كأس العالم']
         },
         // ═══════════════════════════════════════════════
         // Thmanyah (ثمانية) - خلفاً لـ SSC المُغلقة أكتوبر 2025
@@ -174,15 +190,23 @@ window.KSportsAPI = (function() {
         },
         // ═══════════════════════════════════════════════
         // Alkass (الكأس - قطر)
-        // الحقوق: دوري نجوم قطر
+        // الحقوق: دوري نجوم قطر، كأس العالم
         // ═══════════════════════════════════════════════
         'alkass 1': {
-            leagues: [153, 154, 17], // Qatar Stars League, Qatar Cup, AFC CL
+            leagues: [1, 153, 154, 17], // World Cup, Qatar Stars League, Qatar Cup, AFC CL
             keywords: ['قطري', 'الكأس']
         },
         'alkass 2': {
-            leagues: [153, 154], // Qatar Stars League, Qatar Cup
+            leagues: [1, 153, 154], // World Cup, Qatar Stars League, Qatar Cup
             keywords: ['قطري', 'الكأس']
+        },
+        'alkass extra 1': {
+            leagues: [1], // World Cup
+            keywords: ['الكأس إكسترا', 'alkass extra', 'كأس العالم']
+        },
+        'alkass extra 2': {
+            leagues: [1], // World Cup
+            keywords: ['الكأس إكسترا', 'alkass extra', 'كأس العالم']
         },
         // ═══════════════════════════════════════════════
         // Arryadia (الرياضية المغربية) - SNRT
@@ -206,7 +230,7 @@ window.KSportsAPI = (function() {
         },
         // General/Fallback (بطولات رئيسية مشهورة)
         '_default': {
-            leagues: [39, 140, 61, 2, 3, 848, 307, 78, 135, 17],
+            leagues: [1, 39, 140, 61, 2, 3, 848, 307, 78, 135, 17],
             keywords: []
         }
     };
@@ -807,13 +831,30 @@ window.KSportsAPI = (function() {
             var numMatch = m.match(/\d+/);
             var num = numMatch ? numMatch[0] : '';
             var isPremium = m.indexOf('premium') !== -1;
+            var isMax = m.indexOf('max') !== -1;
             
-            if (c.indexOf('bein') === -1 && c.indexOf('بين') === -1) return false;
+            if (c.indexOf('bein') === -1 && c.indexOf('بين') === -1 && c.indexOf('بي ان') === -1) return false;
             if (num) {
                 var numRegex = new RegExp('(^|\\D)' + num + '(\\D|$)');
                 if (!numRegex.test(c)) return false;
             }
             if (isPremium && c.indexOf('premium') === -1 && c.indexOf('بريميوم') === -1) return false;
+            if (isMax && c.indexOf('max') === -1 && c.indexOf('ماكس') === -1) return false;
+            if (!isMax && (c.indexOf('max') !== -1 || c.indexOf('ماكس') !== -1)) return false;
+            return true;
+        }
+        else if (m.indexOf('alkass') !== -1) {
+            var numMatch = m.match(/\d+/);
+            var num = numMatch ? numMatch[0] : '';
+            var isExtra = m.indexOf('extra') !== -1;
+            
+            if (c.indexOf('alkass') === -1 && c.indexOf('الكأس') === -1 && c.indexOf('الكاس') === -1) return false;
+            if (num) {
+                var numRegex = new RegExp('(^|\\D)' + num + '(\\D|$)');
+                if (!numRegex.test(c)) return false;
+            }
+            if (isExtra && c.indexOf('extra') === -1 && c.indexOf('إكسترا') === -1 && c.indexOf('اكسترا') === -1) return false;
+            if (!isExtra && (c.indexOf('extra') !== -1 || c.indexOf('إكسترا') !== -1 || c.indexOf('اكسترا') !== -1)) return false;
             return true;
         }
         else if (m.indexOf('thmanyah') !== -1) {
@@ -915,6 +956,9 @@ window.KSportsAPI = (function() {
     function getBestChannelForMatch(leagueId, siteChannels) {
         if (!siteChannels || siteChannels.length === 0) return null;
 
+        var bestCh = null;
+        var bestScore = -1;
+
         for (var i = 0; i < siteChannels.length; i++) {
             var ch = siteChannels[i];
             
@@ -925,14 +969,20 @@ window.KSportsAPI = (function() {
                 
                 if (isChannelMatch(mapKey, ch.name)) {
                     if (CHANNEL_LEAGUE_MAP[mapKey].leagues.indexOf(leagueId) !== -1) {
-                        return ch;
+                        var score = 1;
+                        if (mapKey.indexOf('max') !== -1 || mapKey.indexOf('extra') !== -1) {
+                            score = 2;
+                        }
+                        if (score > bestScore) {
+                            bestScore = score;
+                            bestCh = ch;
+                        }
                     }
                 }
             }
         }
 
-        // Return first channel as fallback
-        return siteChannels[0];
+        return bestCh || siteChannels[0];
     }
 
     // ---- Fetch fixtures from API-Football ----
