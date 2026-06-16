@@ -191,15 +191,15 @@
                     match.channels.forEach((ch, idx) => {
                         const btnClass = idx === 0 ? 'btn-primary' : 'btn-test';
                         const encodedIframe = btoa(unescape(encodeURIComponent(ch.iframe)));
-                        const serverName = ch.name ? ch.name : \`سيرفر \${idx + 1}\`;
-                        serverSwitcherHtml += \`<button class="\${btnClass} server-btn" data-iframe="\${encodedIframe}" style="padding: 8px 15px; font-size: 0.9rem; margin:0;" onclick="switchServer(this)">\${serverName}</button>\`;
+                        const serverName = ch.name ? ch.name : `سيرفر ${idx + 1}`;
+                        serverSwitcherHtml += `<button class="${btnClass} server-btn" data-iframe="${encodedIframe}" style="padding: 8px 15px; font-size: 0.9rem; margin:0;" onclick="switchServer(this)">${serverName}</button>`;
                     });
                     serverSwitcherHtml += '</div>';
                 }
             }
 
             if (iframeCode && !iframeCode.startsWith('<iframe') && iframeCode.startsWith('http')) {
-                iframeCode = \`<iframe src="\${iframeCode}" allowfullscreen></iframe>\`;
+                iframeCode = `<iframe src="${iframeCode}" allowfullscreen></iframe>`;
             }
             if (!iframeCode) {
                 iframeCode = '<div style="display:flex; align-items:center; justify-content:center; height:100%; position:absolute; top:0; left:0; width:100%; background:rgba(0,0,0,0.9); color:#a0a0a0; font-size:1.2rem; flex-direction:column; gap:15px;"><i class="fas fa-satellite-dish" style="font-size:3rem; color:#fc466b;"></i><span>سيتم إضافة رابط البث قبل بداية المباراة</span></div>';
@@ -216,12 +216,12 @@
                 
                 let code = decodeURIComponent(escape(atob(btn.dataset.iframe)));
                 if (code && !code.startsWith('<iframe') && code.startsWith('http')) {
-                    code = \`<iframe src="\${code}" allowfullscreen></iframe>\`;
+                    code = `<iframe src="${code}" allowfullscreen></iframe>`;
                 }
                 document.querySelector('.player-wrapper').innerHTML = code;
             };
 
-            const getFallback = (name) => \`onerror="this.src='https://logo.clearbit.com/\${name.toLowerCase().replace(/ /g,'')}.com?size=150'; this.onerror=function(){this.src='https://ui-avatars.com/api/?name=\${encodeURIComponent(name)}&background=random&color=fff&size=200';};"\`;
+            const getFallback = (name) => `onerror="this.src='https://logo.clearbit.com/${name.toLowerCase().replace(/ /g,'')}.com?size=150'; this.onerror=function(){this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&size=200';};"`;
 
             let vsContent = "VS";
             if (match.liveHomeScore !== undefined && match.liveHomeScore !== null && match.liveHomeScore !== '-' &&
@@ -235,34 +235,34 @@
                 } else if (['finished', 'ft', 'match finished'].includes(liveStatusLower)) {
                     statusLabel = '<div style="font-size:0.9rem; color:#ff6060; margin-top:5px;">انتهت</div>';
                 }
-                vsContent = \`<div style="display:flex;flex-direction:column;align-items:center;line-height:1;">
-                    <div style="font-size:3.5rem; letter-spacing:5px; text-shadow: 0 0 20px rgba(255,255,255,0.3);">\${match.liveHomeScore} - \${match.liveAwayScore}</div>
-                    \${statusLabel}
-                </div>\`;
+                vsContent = `<div style="display:flex;flex-direction:column;align-items:center;line-height:1;">
+                    <div style="font-size:3.5rem; letter-spacing:5px; text-shadow: 0 0 20px rgba(255,255,255,0.3);">${match.liveHomeScore} - ${match.liveAwayScore}</div>
+                    ${statusLabel}
+                </div>`;
             }
 
-            const html = \`
+            const html = `
                 <div class="match-header">
                     <div class="teams-logos">
-                        <img src="\${match.homeBadge}" class="team-logo-large" alt="\${match.home}" \${getFallback(match.home)}>
-                        <div class="vs-text">\${vsContent}</div>
-                        <img src="\${match.awayBadge}" class="team-logo-large" alt="\${match.away}" \${getFallback(match.away)}>
+                        <img src="${match.homeBadge}" class="team-logo-large" alt="${match.home}" ${getFallback(match.home)}>
+                        <div class="vs-text">${vsContent}</div>
+                        <img src="${match.awayBadge}" class="team-logo-large" alt="${match.away}" ${getFallback(match.away)}>
                     </div>
-                    <h1 class="match-title">\${match.title}</h1>
+                    <h1 class="match-title">${match.title}</h1>
                     <div class="match-info">
-                        <span style="color:var(--secondary-color); font-weight:700;"><i class="fas fa-trophy"></i> \${match.league}</span>
-                        <span style="margin-right:20px; color:var(--text-dim);"><i class="fas fa-clock"></i> \${match.time}</span>
+                        <span style="color:var(--secondary-color); font-weight:700;"><i class="fas fa-trophy"></i> ${match.league}</span>
+                        <span style="margin-right:20px; color:var(--text-dim);"><i class="fas fa-clock"></i> ${match.time}</span>
                     </div>
                 </div>
 
                 <div class="player-section">
-                    \${serverSwitcherHtml}
+                    ${serverSwitcherHtml}
                     <div class="player-container">
                         <div class="player-header">
                             <span><i class="fas fa-satellite-dish"></i> بث مباشر بجودة عالية - سيرفر خاص</span>
                         </div>
                         <div class="player-wrapper">
-                            \${iframeCode}
+                            ${iframeCode}
                         </div>
                     </div>
                 </div>
