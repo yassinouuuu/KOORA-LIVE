@@ -1350,6 +1350,7 @@ window.KSportsAPI = (function() {
         previewMatches: previewMatches,
         clearAutoImported: clearAutoImported,
         getImportStatus: getImportStatus,
+        updateLiveScores: updateLiveScores,
         
         // Helpers
         getLeaguesForChannels: getLeaguesForChannels,
