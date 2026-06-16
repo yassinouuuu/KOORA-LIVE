@@ -137,35 +137,81 @@ document.addEventListener('DOMContentLoaded', () => {
     // Make globally accessible for KSportsAPI integration
     window.loadMatchesAdmin = loadMatchesAdmin;
 
-    // --- Channel Auto-Select Logic ---
-    const matchChannelSelect = document.getElementById('matchChannelSelect');
-    
+    // --- Channel Auto-Select Logic (Multi-Channel) ---
     function populateChannelSelects() {
-        if (!matchChannelSelect) return;
+        const selects = document.querySelectorAll('.match-channel-select');
+        if (!selects.length) return;
         window.DB.get('channels', function(channels) {
-            matchChannelSelect.innerHTML = '<option value="">-- اختر من قنواتك (اختياري) --</option>';
-            if (channels) {
-                channels.forEach(ch => {
-                    const opt = document.createElement('option');
-                    opt.value = ch.name;
-                    opt.textContent = ch.name;
-                    opt.dataset.iframe = ch.iframe;
-                    matchChannelSelect.appendChild(opt);
-                });
-            }
+            selects.forEach(select => {
+                const currentVal = select.value;
+                select.innerHTML = '<option value="">-- اختر قناة (اختياري) --</option>';
+                if (channels) {
+                    channels.forEach(ch => {
+                        const opt = document.createElement('option');
+                        opt.value = ch.name;
+                        opt.textContent = ch.name;
+                        opt.dataset.iframe = ch.iframe;
+                        select.appendChild(opt);
+                    });
+                }
+                select.value = select.dataset.pendingValue || currentVal; // Restore previous or pending selection
+            });
         });
     }
     
     // Call when page loads and when channels change
     populateChannelSelects();
-    
-    // Auto-fill iframe when channel is chosen
-    if (matchChannelSelect) {
-        matchChannelSelect.addEventListener('change', function() {
-            const selectedOpt = matchChannelSelect.options[matchChannelSelect.selectedIndex];
+
+    // Event delegation for dynamic channel rows
+    document.getElementById('matchChannelsContainer').addEventListener('change', function(e) {
+        if (e.target.classList.contains('match-channel-select')) {
+            const selectedOpt = e.target.options[e.target.selectedIndex];
             if (selectedOpt && selectedOpt.dataset.iframe) {
-                document.getElementById('matchIframe').value = selectedOpt.dataset.iframe;
+                const row = e.target.closest('.channel-row');
+                const iframeInput = row.querySelector('.match-iframe-input');
+                if (iframeInput) {
+                    iframeInput.value = selectedOpt.dataset.iframe;
+                }
             }
+        }
+    });
+
+    document.getElementById('matchChannelsContainer').addEventListener('click', function(e) {
+        if (e.target.closest('.btn-remove-channel')) {
+            const row = e.target.closest('.channel-row');
+            if (document.querySelectorAll('.channel-row').length > 1) {
+                row.remove();
+            } else {
+                alert('يجب أن تحتوي المباراة على سيرفر واحد على الأقل.');
+            }
+        }
+    });
+
+    const btnAddChannelRow = document.getElementById('btnAddChannelRow');
+    if (btnAddChannelRow) {
+        btnAddChannelRow.addEventListener('click', function() {
+            const container = document.getElementById('matchChannelsContainer');
+            const rowCount = container.querySelectorAll('.channel-row').length + 1;
+            const newRow = document.createElement('div');
+            newRow.className = 'channel-row';
+            newRow.style.cssText = 'display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; align-items: start; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); margin-top:10px;';
+            newRow.innerHTML = `
+                <div>
+                    <label style="font-size: 0.8rem; margin-bottom: 5px;">اختر القناة (${rowCount})</label>
+                    <select class="match-channel-select" style="width: 100%; padding: 10px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: white;">
+                        <option value="">-- اختر قناة (اختياري) --</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size: 0.8rem; margin-bottom: 5px;">كود الـ IFRAME / الرابط</label>
+                    <textarea class="match-iframe-input" placeholder="ألصق الكود هنا" style="height:42px; min-height:42px;" required></textarea>
+                </div>
+                <div style="padding-top: 25px;">
+                    <button type="button" class="btn-delete btn-remove-channel" style="padding: 10px; margin: 0;" title="حذف القناة"><i class="fas fa-trash"></i></button>
+                </div>
+            `;
+            container.appendChild(newRow);
+            populateChannelSelects();
         });
     }
 
@@ -181,11 +227,47 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('matchAwayBadge').value = (m.awayBadge && m.awayBadge.includes('ui-avatars')) ? '' : (m.awayBadge || '');
             document.getElementById('matchLeague').value = m.league || '';
             document.getElementById('matchTime').value = m.time || '';
-            document.getElementById('matchIframe').value = m.iframe || '';
             
-            // Set channel dropdown if exists
-            if (matchChannelSelect) {
-                matchChannelSelect.value = m.channelName || '';
+            // Clear existing channel rows except the first one
+            const container = document.getElementById('matchChannelsContainer');
+            const rows = container.querySelectorAll('.channel-row');
+            for (let i = 1; i < rows.length; i++) {
+                rows[i].remove();
+            }
+
+            // Populate channels
+            let channels = m.channels || [];
+            if (channels.length === 0 && (m.iframe || m.channelName)) {
+                // Backwards compatibility
+                channels = [{ name: m.channelName || '', iframe: m.iframe || '' }];
+            }
+
+            if (channels.length > 0) {
+                // First row
+                const firstRow = container.querySelector('.channel-row');
+                firstRow.querySelector('.match-channel-select').value = channels[0].name || '';
+                firstRow.querySelector('.match-iframe-input').value = channels[0].iframe || '';
+
+                // Additional rows
+                for (let i = 1; i < channels.length; i++) {
+                    const ch = channels[i];
+                    const btnAdd = document.getElementById('btnAddChannelRow');
+                    if (btnAdd) btnAdd.click();
+                    // Since click is synchronous and creates a new row:
+                    const newRows = container.querySelectorAll('.channel-row');
+                    const newRow = newRows[newRows.length - 1];
+                    // Wait for populateChannelSelects to finish? It is sync since options are stored locally if already populated, 
+                    // but since populateChannelSelects does a DB get, we need a slight delay or rely on the sync population if options already exist.
+                    // Actually, options might be added asynchronously. Let's set value immediately, and also set a data attribute for delayed setting.
+                    const select = newRow.querySelector('.match-channel-select');
+                    select.value = ch.name || '';
+                    select.dataset.pendingValue = ch.name || '';
+                    newRow.querySelector('.match-iframe-input').value = ch.iframe || '';
+                }
+            } else {
+                const firstRow = container.querySelector('.channel-row');
+                firstRow.querySelector('.match-channel-select').value = '';
+                firstRow.querySelector('.match-iframe-input').value = '';
             }
 
             previewHomeLogo.src = m.homeBadge || '';
@@ -234,8 +316,21 @@ document.addEventListener('DOMContentLoaded', () => {
             const awayBadge  = document.getElementById('matchAwayBadge').value.trim();
             const leagueName = document.getElementById('matchLeague').value.trim();
             const timeVal    = document.getElementById('matchTime').value;
-            const iframeVal  = document.getElementById('matchIframe').value.trim();
             
+            // Collect all channels
+            const channelRows = document.querySelectorAll('#matchChannelsContainer .channel-row');
+            const matchChannels = [];
+            channelRows.forEach(row => {
+                const cName = row.querySelector('.match-channel-select').value.trim();
+                const cIframe = row.querySelector('.match-iframe-input').value.trim();
+                if (cIframe) {
+                    matchChannels.push({ name: cName, iframe: cIframe });
+                }
+            });
+
+            const primaryIframe = matchChannels.length > 0 ? matchChannels[0].iframe : '';
+            const primaryChannelName = matchChannels.length > 0 ? matchChannels[0].name : '';
+
             const title = `بث مباشر مباراة ${homeName} ضد ${awayName} - ${leagueName}`;
 
             const isEdit = typeof window.currentEditMatchIndex === 'number' && window.currentEditMatchIndex > -1;
@@ -255,11 +350,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 league: leagueName,
                 description: generateDetailedDescription(homeName, awayName, leagueName),
                 keywords: generateKeywords(homeName, awayName, leagueName),
-                iframe: iframeVal,
-                channelName: (matchChannelSelect && matchChannelSelect.value) ? matchChannelSelect.value : (prevMatch.channelName || ''),
+                iframe: primaryIframe, // For backwards compatibility
+                channelName: primaryChannelName, // For backwards compatibility
+                channels: matchChannels, // Array of channels
                 isAutoImported: prevMatch.isAutoImported || false,
                 apiFixtureId: prevMatch.apiFixtureId,
-                apiStatus: prevMatch.apiStatus || 'NS'
+                apiStatus: prevMatch.apiStatus || 'NS',
+                liveHomeScore: prevMatch.liveHomeScore,
+                liveAwayScore: prevMatch.liveAwayScore,
+                liveStatus: prevMatch.liveStatus,
+                liveMinute: prevMatch.liveMinute
             };
 
             if (isEdit) {

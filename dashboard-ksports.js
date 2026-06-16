@@ -181,6 +181,39 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // ---- Update Scores ----
+    var btnUpdateScores = document.getElementById('btnUpdateScores');
+    if (btnUpdateScores) {
+        btnUpdateScores.addEventListener('click', function() {
+            btnUpdateScores.disabled = true;
+            btnUpdateScores.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحديث...';
+
+            if (window.KSportsAPI && window.KSportsAPI.updateLiveScores) {
+                window.KSportsAPI.updateLiveScores(function(result) {
+                    btnUpdateScores.disabled = false;
+                    btnUpdateScores.innerHTML = '<i class="fas fa-futbol"></i> تحديث النتائج';
+
+                    if (!result.success) {
+                        showNotification('خطأ في التحديث: ' + result.error, 'error');
+                        return;
+                    }
+
+                    showNotification('تم تحديث نتائج ' + result.updated + ' مباريات بنجاح! ⚽', 'success');
+                    
+                    if (typeof loadMatchesAdmin === 'function') {
+                        loadMatchesAdmin();
+                    } else if (window.loadMatchesAdmin) {
+                        window.loadMatchesAdmin();
+                    }
+                });
+            } else {
+                btnUpdateScores.disabled = false;
+                btnUpdateScores.innerHTML = '<i class="fas fa-futbol"></i> تحديث النتائج';
+                showNotification('عذراً، ميزة تحديث النتائج غير متوفرة حالياً.', 'error');
+            }
+        });
+    }
+
     // ---- Update Import Stats ----
     function updateImportStats() {
         if (!window.KSportsAPI) return;

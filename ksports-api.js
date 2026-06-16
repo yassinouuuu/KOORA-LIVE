@@ -1241,6 +1241,48 @@ window.KSportsAPI = (function() {
         });
     }
 
+    // ---- Update Live Scores ----
+    function updateLiveScores(callback) {
+        fetchFixtures(function(err, fixtures) {
+            if (err) {
+                callback({ success: false, error: err });
+                return;
+            }
+
+            // Create map of fixtures by API ID
+            var fixturesMap = {};
+            fixtures.forEach(function(f) {
+                fixturesMap[f.fixture.id] = f;
+            });
+
+            window.DB.get('customMatches', function(matches) {
+                if (!matches || matches.length === 0) {
+                    callback({ success: true, updated: 0 });
+                    return;
+                }
+
+                var updatedCount = 0;
+                var updatedMatches = matches.map(function(m) {
+                    if (m.apiFixtureId && fixturesMap[m.apiFixtureId]) {
+                        var f = fixturesMap[m.apiFixtureId];
+                        m.liveStatus = f.fixture.status.short;
+                        m.liveHomeScore = f.goals ? f.goals.home : null;
+                        m.liveAwayScore = f.goals ? f.goals.away : null;
+                        m.liveMinute = f.fixture.status.elapsed;
+                        updatedCount++;
+                    }
+                    return m;
+                });
+
+                if (updatedCount > 0) {
+                    window.DB.save('customMatches', updatedMatches);
+                }
+
+                callback({ success: true, updated: updatedCount });
+            });
+        });
+    }
+
     // ---- Get import status ----
     function getImportStatus(callback) {
         window.DB.get('customMatches', function(matches) {
