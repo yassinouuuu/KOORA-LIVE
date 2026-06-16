@@ -20,7 +20,7 @@
 }
 
 body {
-    background: radial-gradient(circle at top, rgba(8, 0, 26, 0.82) 0%, rgba(8, 0, 26, 0.96) 100%), url('/wc2026-bg.png') no-repeat center center fixed;
+    background: radial-gradient(circle at top, rgba(8, 0, 26, 0.82) 0%, rgba(8, 0, 26, 0.96) 100%), url('/wc2026-bg.jpg') no-repeat center center fixed;
     background-size: cover;
     color: var(--text-color);
     line-height: 1.6;
