@@ -1,9 +1,9 @@
 /* style.css */
 :root {
-    --primary-color: #3f5efb;
-    --secondary-color: #fc466b;
-    --accent-color: #00ecbc;
-    --background-dark: #0f0c29;
+    --primary-color: #5e17eb;
+    --secondary-color: #ff006a;
+    --accent-color: #00ff87;
+    --background-dark: #08001a;
     --card-bg: rgba(255, 255, 255, 0.05);
     --glass-blur: blur(16px);
     --text-color: #e0e0e0;
@@ -20,7 +20,8 @@
 }
 
 body {
-    background-color: var(--background-dark);
+    background: radial-gradient(circle at top, rgba(8, 0, 26, 0.82) 0%, rgba(8, 0, 26, 0.96) 100%), url('/wc2026-bg.png') no-repeat center center fixed;
+    background-size: cover;
     color: var(--text-color);
     line-height: 1.6;
     overflow-x: hidden;

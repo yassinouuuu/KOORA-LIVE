@@ -83,7 +83,13 @@
             --dim: #a0a0a0;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
-        body { background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+        body { 
+            background: radial-gradient(circle at top, rgba(11, 9, 31, 0.82) 0%, rgba(11, 9, 31, 0.96) 100%), url('/wc2026-bg.png') no-repeat center center fixed;
+            background-size: cover;
+            color: var(--text); 
+            min-height: 100vh; 
+            overflow-x: hidden; 
+        }
 
         /* Background blobs */
         .blob {
